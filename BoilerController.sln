@@ -13,6 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoilerController.UWP", "Boi
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		BoilerController\BoilerController\BoilerController.projitems*{a19023ac-33ff-4284-a9e8-9aa0c2a54635}*SharedItemsImports = 4
 		BoilerController\BoilerController\BoilerController.projitems*{aeafa4ca-86e2-4fe5-9bd8-21aa779cd350}*SharedItemsImports = 13
 		BoilerController\BoilerController\BoilerController.projitems*{c13f34bd-8055-4b5e-86c5-94bf4c6a85a7}*SharedItemsImports = 4
 		BoilerController\BoilerController\BoilerController.projitems*{d9d07ab6-1b8f-402f-9d19-238437e5fdc3}*SharedItemsImports = 4

@@ -4,8 +4,15 @@
              xmlns:local="clr-namespace:BoilerController"
              x:Class="BoilerController.MainPage">
 
-	<Label Text="Welcome to Xamarin Forms!" 
-           VerticalOptions="Center" 
-           HorizontalOptions="Center" />
+    <StackLayout Orientation="Vertical">
+        <Label Text="Welcome to Xamarin Forms!" 
+               VerticalOptions="Center" 
+               HorizontalOptions="Center" />
+        <StackLayout Orientation="Horizontal">
+            <Label Text="Current Status: "/>
+            <Label Text="{Binding Path=Status}" TextColor="{Binding Path=StatColor}"/>
+        </StackLayout>
+        <Button Text="Switch Boiler" Command="{Binding Path=SwitchCommand}"/>
+    </StackLayout>
 
 </ContentPage>

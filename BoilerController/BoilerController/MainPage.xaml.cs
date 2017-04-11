@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BoilerController.ViewModels;
 using Xamarin.Forms;
 
 namespace BoilerController
 {
 	public partial class MainPage : ContentPage
 	{
-		public MainPage()
+	    
+
+	    public MainPage()
 		{
 			InitializeComponent();
+		    BindingContext = new MainPageViewModel();
+
 		}
 	}
 }
