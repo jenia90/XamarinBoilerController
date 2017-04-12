@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using BoilerController.Droid.Annotations;
 using Xamarin.Forms;
 
@@ -15,8 +16,7 @@ namespace BoilerController.ViewModels
 
         public MainPageViewModel()
         {
-            Status = "Off";
-            StatColor = Color.Red;
+            UpdateProps();
         }
 
         public string Status
@@ -39,32 +39,67 @@ namespace BoilerController.ViewModels
             }
         }
 
+        public DateTime DateTime => DateTime.Now;
+
         public RelayCommand SwitchCommand => new RelayCommand(SwitchStatus);
 
         private async void SwitchStatus()
         {
+            if (Status == "Off")
+            {
+                if (await HttpHandlerTask("setled17/1") == "OK")
+                {
+                    Status = "On";
+                    StatColor = Color.Green;
+                }
+            }
+            else if (Status == "On")
+            {
+                if (await HttpHandlerTask("setled17/0") == "OK")
+                {
+                    Status = "Off";
+                    StatColor = Color.Red;
+                }
+            }
+        }
+
+        private async void SetTimer()
+        {
+            
+        }
+
+        private async void UpdateProps()
+        {
+            if (await HttpHandlerTask("getled17") == "On")
+            {
+                Status = "On";
+                StatColor = Color.Green;
+            }
+            else if (await HttpHandlerTask("getled17") == "Off")
+            {
+                Status = "Off";
+                StatColor = Color.Red;
+            }
+        }
+
+        private async Task<string> HttpHandlerTask(string request)
+        {
+            HttpResponseMessage response;
+
             using (var client = new HttpClient())
             {
                 try
                 {
-                    if (Status == "Off")
-                    {
-                        Status = "On";
-                        StatColor = Color.Green;
-                        var response = await client.GetAsync(_baseurl + "setled/1");
-                    }
-                    else if (Status == "On")
-                    {
-                        Status = "Off";
-                        StatColor = Color.Red;
-                        var response = await client.GetAsync(_baseurl + "setled/0");
-                    }
+                    response = await client.GetAsync(_baseurl + request);
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine(e);
+                    throw;
                 }
             }
+            //TODO: Fix this shit!!!! it doesn't return the message from the server!
+            return response.ReasonPhrase;
         }
 
 

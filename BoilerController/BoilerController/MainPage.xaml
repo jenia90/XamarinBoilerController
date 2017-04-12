@@ -8,11 +8,13 @@
         <Label Text="Welcome to Xamarin Forms!" 
                VerticalOptions="Center" 
                HorizontalOptions="Center" />
-        <StackLayout Orientation="Horizontal">
+        <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Center">
             <Label Text="Current Status: "/>
             <Label Text="{Binding Path=Status}" TextColor="{Binding Path=StatColor}"/>
         </StackLayout>
         <Button Text="Switch Boiler" Command="{Binding Path=SwitchCommand}"/>
+        <Label Text="Pick start date and time:"/>
+        <DatePicker Date="{Binding Path=DateTime}"/>
     </StackLayout>
 
 </ContentPage>
