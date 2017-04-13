@@ -1,16 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using BoilerController.Droid.Annotations;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
 {
-    class MainPageViewModel : INotifyPropertyChanged
+    class MainPageViewModel : ContentPage
     {
-        private readonly string _baseurl = "http://192.168.1.178:5000/";
+        private readonly string _baseurl = "http://localhost:5000/";
+        //private readonly string _baseurl = "http://192.168.1.178:5000/"; // uncomment for production
         private string _status;
         private Color _statColor;
 
@@ -70,47 +69,36 @@ namespace BoilerController.ViewModels
 
         private async void UpdateProps()
         {
-            if (await HttpHandlerTask("getled17") == "On")
+            var response = await HttpHandlerTask("getled17");
+            if (response == "On")
             {
                 Status = "On";
                 StatColor = Color.Green;
             }
-            else if (await HttpHandlerTask("getled17") == "Off")
+            else if (response == "Off")
             {
                 Status = "Off";
                 StatColor = Color.Red;
             }
+            else
+            {
+                Status = response;
+                StatColor = Color.Blue;
+            }
         }
 
-        private async Task<string> HttpHandlerTask(string request)
+        public async Task<string> HttpHandlerTask(string request)
         {
             HttpResponseMessage response;
 
             using (var client = new HttpClient())
             {
-                try
-                {
-                    response = await client.GetAsync(_baseurl + request);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
+                response = await client.GetAsync(_baseurl + request);
             }
-            //TODO: Fix this shit!!!! it doesn't return the message from the server!
-            return response.ReasonPhrase;
+
+            return await response.Content.ReadAsStringAsync();
         }
-
-
-        #region INPC
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
+        
+        public new event PropertyChangedEventHandler PropertyChanged;
     }
 }

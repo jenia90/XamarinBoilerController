@@ -13,6 +13,7 @@
             <Label Text="{Binding Path=Status}" TextColor="{Binding Path=StatColor}"/>
         </StackLayout>
         <Button Text="Switch Boiler" Command="{Binding Path=SwitchCommand}"/>
+        <Button Text="Test" Clicked="Button_OnClicked"/>
         <Label Text="Pick start date and time:"/>
         <DatePicker Date="{Binding Path=DateTime}"/>
     </StackLayout>
