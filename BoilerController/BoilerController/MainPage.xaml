@@ -14,8 +14,13 @@
         </StackLayout>
         <Button Text="Switch Boiler" Command="{Binding Path=SwitchCommand}"/>
         <Button Text="Test" Clicked="Button_OnClicked"/>
-        <Label Text="Pick start date and time:"/>
-        <DatePicker Date="{Binding Path=DateTime}"/>
+        <Label Text="Pick start date and time:" HorizontalOptions="Center"/>
+        <DatePicker Date="{Binding Path=OnDate, Mode=TwoWay}"/>
+        <TimePicker Time="{Binding Path=OnTime, Mode=TwoWay}"/>
+        <Label Text="Pick end date and time:" HorizontalOptions="Center"/>
+        <DatePicker Date="{Binding Path=OffDate, Mode=TwoWay}"/>
+        <TimePicker Time="{Binding Path=OffTime, Mode=TwoWay}"/>
+        <Button Text="Set Timer" Command="{Binding Path=SetTimerCommand}"/>
     </StackLayout>
 
 </ContentPage>

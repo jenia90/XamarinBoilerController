@@ -29,7 +29,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)TestServer\boiler.db" />
     <None Include="$(MSBuildThisFileDirectory)TestServer\TestServer.py" />
   </ItemGroup>
 </Project>
