@@ -10,17 +10,37 @@
                HorizontalOptions="Center" />
         <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Center">
             <Label Text="Current Status: "/>
-            <Label Text="{Binding Path=Status}" TextColor="{Binding Path=StatColor}"/>
+            <Label Text="{Binding Status}" TextColor="{Binding StatColor}"/>
         </StackLayout>
-        <Button Text="Switch Boiler" Command="{Binding Path=SwitchCommand}"/>
-        <Button Text="Test" Clicked="Button_OnClicked"/>
+        <Button Text="Switch Boiler" Command="{Binding SwitchCommand}"/>
         <Label Text="Pick start date and time:" HorizontalOptions="Center"/>
-        <DatePicker Date="{Binding Path=OnDate, Mode=TwoWay}"/>
-        <TimePicker Time="{Binding Path=OnTime, Mode=TwoWay}"/>
+        <StackLayout Orientation="Horizontal">
+            <DatePicker Date="{Binding OnDate, Mode=TwoWay}"/>
+            <TimePicker Time="{Binding OnTime, Mode=TwoWay}"/>
+        </StackLayout>
         <Label Text="Pick end date and time:" HorizontalOptions="Center"/>
-        <DatePicker Date="{Binding Path=OffDate, Mode=TwoWay}"/>
-        <TimePicker Time="{Binding Path=OffTime, Mode=TwoWay}"/>
-        <Button Text="Set Timer" Command="{Binding Path=SetTimerCommand}"/>
+        <StackLayout Orientation="Horizontal">
+            <DatePicker Date="{Binding OffDate, Mode=TwoWay}"/>
+            <TimePicker Time="{Binding OffTime, Mode=TwoWay}"/>
+        </StackLayout>
+        <Button Text="Set Timer" Command="{Binding SetTimerCommand}"/>
+        <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}" IsPullToRefreshEnabled="True" RefreshCommand="{Binding GetTimesCommand}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Pin:"/>
+                            <Label Text="{Binding Pin}" Margin="0,0,40,0"/>
+                            <Label Text="Start:"/>
+                            <Label Text="{Binding Start}" Margin="0,0,40,0"/>
+                            <Label Text="End:"/>
+                            <Label Text="{Binding End}" Margin="0,0,40,0"/>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Text="Get Times" Command="{Binding GetTimesCommand}"/>
     </StackLayout>
 
 </ContentPage>

@@ -1,27 +1,50 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BoilerController.Models;
+using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
 {
     class MainPageViewModel : INotifyPropertyChanged
     {
-        private readonly string _baseurl = "http://localhost:5000/";
-        //private readonly string _baseurl = "http://192.168.1.178:5000/"; // uncomment for production
+        #region Fields
+
+        //private readonly string _baseurl = "http://localhost:5000/";
+        private readonly string _baseurl = "http://192.168.1.178:5000/"; // uncomment for production
         private string _status = "Status unavailable";
         private Color _statColor;
         private DateTime _onDate = DateTime.Now, _offDate = DateTime.Now;
         private TimeSpan _onTime = DateTime.Now.TimeOfDay,
             _offTime = DateTime.Now.AddMinutes(45).TimeOfDay;
 
+        private ObservableCollection<Job> _jobs;
+
+        #endregion
+
+        #region ctor
+
         public MainPageViewModel()
         {
             UpdateProps();
-        }
+        } 
+        #endregion
 
         #region Props
+
+        public ObservableCollection<Job> Jobs
+        {
+            get => _jobs;
+            set
+            {
+                _jobs = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Jobs"));
+            }
+        }
 
         public string Status
         {
@@ -48,6 +71,12 @@ namespace BoilerController.ViewModels
             get => _onDate;
             set
             {
+                if (value <= DateTime.Now)
+                {
+                    DisplayMessage("Error in start date", "Start date cannot be in the past");
+                    OnDate = DateTime.Now;
+                    return;
+                }
                 _onDate = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OnDate"));
             }
@@ -58,6 +87,12 @@ namespace BoilerController.ViewModels
             get => _onTime;
             set
             {
+                if (value <= DateTime.Today.TimeOfDay)
+                {
+                    DisplayMessage("Error in start time", "Start time cannot be in the past");
+                    OnTime = DateTime.Now.TimeOfDay;
+                    return;
+                }
                 _onTime = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OnTime"));
             }
@@ -68,6 +103,12 @@ namespace BoilerController.ViewModels
             get => _offDate;
             set
             {
+                if (value < OnDate)
+                {
+                    DisplayMessage("Error in end time", "End date cannot be before start time");
+                    OffDate = DateTime.Now;
+                    return;
+                }
                 _offDate = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OffDate"));
             }
@@ -78,15 +119,27 @@ namespace BoilerController.ViewModels
             get => _offTime;
             set
             {
+                if (value < OnTime)
+                {
+                    DisplayMessage("Error in end time", "End time cannot be before start time");
+                    OffTime = DateTime.Now.TimeOfDay;
+                    return;
+                }
                 _offTime = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OffTime"));
             }
         }
+        #endregion
+
+        #region Commands
 
         public RelayCommand SwitchCommand => new RelayCommand(SwitchStatus);
         public RelayCommand SetTimerCommand => new RelayCommand(SetTimer);
+        public RelayCommand GetTimesCommand => new RelayCommand(GetTimes);
 
         #endregion
+
+        #region Methods
 
         /// <summary>
         /// Sends a command to the boiler to switch it's status manually.
@@ -95,7 +148,9 @@ namespace BoilerController.ViewModels
         {
             if (Status == "Off")
             {
-                if (await HttpHandlerTask("setled17/1") == "OK")
+                var response = await HttpRequestTask("setled17/1");
+                var content = await response.Content.ReadAsStringAsync();
+                if (content == "OK")
                 {
                     Status = "On";
                     StatColor = Color.Green;
@@ -103,7 +158,9 @@ namespace BoilerController.ViewModels
             }
             else if (Status == "On")
             {
-                if (await HttpHandlerTask("setled17/0") == "OK")
+                var response = await HttpRequestTask("setled17/0");
+                var content = await response.Content.ReadAsStringAsync();
+                if (content == "OK")
                 {
                     Status = "Off";
                     StatColor = Color.Red;
@@ -117,10 +174,19 @@ namespace BoilerController.ViewModels
         private async void SetTimer()
         {
             var request =
-                $@"settime?dev=17&ontime={OnTime:hh\:mm}&ondate={OnDate:yyyy-MM-dd}&offtime={OffTime:hh\:mm}&offdate={OffDate:yyyy-MM-dd}";
+                $@"settime?dev=17&ontime={OnTime:hh\:mm}&ondate={OnDate:yyyy-MM-dd}"+
+                $@"&offtime={OffTime:hh\:mm}&offdate={OffDate:yyyy-MM-dd}";
 
 
-            await HttpHandlerTask(request);
+            await HttpRequestTask(request);
+        }
+
+        private async void GetTimes()
+        {
+            //TODO: Implement!
+            var response = await HttpRequestTask("gettimes");
+            var job = await response.Content.ReadAsStringAsync();
+            Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
         }
 
         /// <summary>
@@ -128,20 +194,25 @@ namespace BoilerController.ViewModels
         /// </summary>
         private async void UpdateProps()
         {
-            var response = await HttpHandlerTask("getled17");
-            if (response == "On")
+            var response = await HttpRequestTask("getled17");
+            if (response == null)
+            {
+                return;
+            }
+            var content = await response.Content.ReadAsStringAsync();
+            if (content == "On")
             {
                 Status = "On";
                 StatColor = Color.Green;
             }
-            else if (response == "Off")
+            else if (content == "Off")
             {
                 Status = "Off";
                 StatColor = Color.Red;
             }
             else
             {
-                Status = response;
+                Status = content;
                 StatColor = Color.Blue;
             }
         }
@@ -149,20 +220,34 @@ namespace BoilerController.ViewModels
         /// <summary>
         /// Sends formated request to the boiler server
         /// </summary>
-        /// <param name="request">Request string to send</param>
+        /// <param name="request" type="HttpResponseMessage">Request string to send</param>
         /// <returns>Return status from the server</returns>
-        public async Task<string> HttpHandlerTask(string request)
+        private async Task<HttpResponseMessage> HttpRequestTask(string request)
         {
             HttpResponseMessage response;
 
             using (var client = new HttpClient())
             {
-                response = await client.GetAsync(_baseurl + request);
+                try
+                {
+                    response = await client.GetAsync(_baseurl + request);
+                }
+                catch (HttpRequestException e)
+                {
+                    DisplayMessage("Server Unreachable", "Unable to connect to server");
+                    return null;
+                }
             }
 
-            return await response.Content.ReadAsStringAsync();
+            return response;
         }
-        
+
+        private async void DisplayMessage(string title, string message, string cancel = "OK")
+        {
+            await App.Current.MainPage.DisplayAlert(title, message, cancel);
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
-    }
+    } 
+    #endregion
 }
