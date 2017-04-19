@@ -2,10 +2,14 @@ from flask import Flask, request
 import json
 import sqlite3
 
+OnState = True # Replace with GPIO.HIGH
+OffState = False # Replace With GPIO.LOW
+
 app = Flask(__name__)
-pins = {17: {'name': 'LED', 'state': False}}
+pins = {17: {'name': 'LED', 'state': OffState}}
 
 db = sqlite3.connect('boiler.db')
+
 
 @app.route('/settime')
 def set_time():
@@ -43,16 +47,17 @@ def get_times():
 def set_led(num, state):
     num = int(num)
     if state == '1':
-        pins[num]['state'] = True
+        pins[num]['state'] = OnState
     elif state == '0':
-        pins[num]['state'] = False
+        pins[num]['state'] = OffState
+    # GPIO.output(num, pins[num]['state'])
     return 'OK'
 
 
 @app.route('/getled<num>')
 def get_led(num):
     num = int(num)
-    if pins[num]['state'] == True:
+    if pins[num]['state'] == OnState:
         return 'On'
     return 'Off'
 
