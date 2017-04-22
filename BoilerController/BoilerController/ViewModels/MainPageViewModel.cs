@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using BoilerController.Models;
 using Newtonsoft.Json;
 using Xamarin.Forms;
@@ -14,8 +14,8 @@ namespace BoilerController.ViewModels
     {
         #region Fields
 
-        //private readonly string _baseurl = "http://localhost:5000/";
-        private readonly string _baseurl = "http://192.168.1.178:5000/"; // uncomment for production
+        private readonly string _baseurl = "http://localhost:5000/";
+        //private readonly string _baseurl = "http://192.168.1.178:5000/"; // uncomment for production
         private string _status = "Status unavailable";
         private Color _statColor;
         private DateTime _onDate = DateTime.Now, _offDate = DateTime.Now;
@@ -23,6 +23,7 @@ namespace BoilerController.ViewModels
             _offTime = DateTime.Now.AddMinutes(45).TimeOfDay;
 
         private ObservableCollection<Job> _jobs;
+        private bool _isRefreshing = false;
 
         #endregion
 
@@ -43,6 +44,16 @@ namespace BoilerController.ViewModels
             {
                 _jobs = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Jobs"));
+            }
+        }
+
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set
+            {
+                _isRefreshing = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsRefreshing"));
             }
         }
 
@@ -133,9 +144,10 @@ namespace BoilerController.ViewModels
 
         #region Commands
 
-        public RelayCommand SwitchCommand => new RelayCommand(SwitchStatus);
-        public RelayCommand SetTimerCommand => new RelayCommand(SetTimer);
-        public RelayCommand GetTimesCommand => new RelayCommand(GetTimes);
+        public ICommand SwitchCommand => new Command(SwitchStatus);
+        public ICommand SetTimerCommand => new Command(SetTimer);
+        public ICommand GetTimesCommand => new Command(GetTimes);
+        public ICommand DeleteCommand => new Command<int>(RemoveItem);
 
         #endregion
 
@@ -183,10 +195,20 @@ namespace BoilerController.ViewModels
 
         private async void GetTimes()
         {
-            //TODO: Implement!
             var response = await HttpRequestTask("gettimes");
             var job = await response.Content.ReadAsStringAsync();
             Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
+
+            IsRefreshing = false;
+        }
+
+        private async void RemoveItem(int id)
+        {
+            var response = await HttpRequestTask("remove?id=" + id);
+            if (await response.Content.ReadAsStringAsync() == "")
+            {
+                GetTimes();
+            }
         }
 
         /// <summary>

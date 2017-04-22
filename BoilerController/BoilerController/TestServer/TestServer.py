@@ -11,6 +11,20 @@ pins = {17: {'name': 'LED', 'state': OffState}}
 db = sqlite3.connect('boiler.db')
 
 
+@app.route('/remove')
+def delete_item():
+    id = request.args['id']
+
+    curs = db.cursor()
+    try:
+        curs.execute(
+            "DELETE from schedule where ID=?;", (id,))
+        db.commit()
+    except Exception as e:
+        print(e)
+        return 'BAD'
+    return 'OK'
+
 @app.route('/settime')
 def set_time():
     pin = request.args['dev']
@@ -20,7 +34,9 @@ def set_time():
 
     curs = db.cursor()
     try:
-        curs.execute("INSERT INTO schedule VALUES (?,?,?);", values)
+        curs.execute("INSERT INTO schedule (dev, turnon, turnoff) "
+                     "VALUES (?,?,?);",
+                     values)
         db.commit()
     except:
         return 'BAD'
@@ -37,9 +53,10 @@ def get_times():
     except:
         return 'BAD'
     for q in query:
-        d.append({'pin': q[0],
-                  'start': q[1],
-                  'end': q[2]})
+        d.append({'ID': q[0],
+                  'pin': q[1],
+                  'start': q[2],
+                  'end': q[3]})
     return json.dumps(d)
 
 

@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:BoilerController"
-             x:Class="BoilerController.MainPage">
+             x:Class="BoilerController.MainPage"
+             x:Name="MainPageClass">
 
     <StackLayout Orientation="Vertical">
         <Label Text="Welcome to Xamarin Forms!" 
@@ -24,17 +25,27 @@
             <TimePicker Time="{Binding OffTime, Mode=TwoWay}"/>
         </StackLayout>
         <Button Text="Set Timer" Command="{Binding SetTimerCommand}"/>
-        <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}" IsPullToRefreshEnabled="True" RefreshCommand="{Binding GetTimesCommand}">
+        <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}" 
+                  IsPullToRefreshEnabled="True" 
+                  IsRefreshing="{Binding IsRefreshing}" 
+                  RefreshCommand="{Binding GetTimesCommand}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
+                        <ViewCell.ContextActions>
+                            <MenuItem Text="Remove" 
+                                      Command="{Binding Path=BindingContext.DeleteCommand, Source={x:Reference Name=MainPageClass}}"
+                                      CommandParameter="{Binding Id}"
+                                      IsDestructive="True"/>
+                        </ViewCell.ContextActions>
+
                         <StackLayout Orientation="Horizontal">
                             <Label Text="Pin:"/>
-                            <Label Text="{Binding Pin}" Margin="0,0,40,0"/>
+                            <Label Text="{Binding Pin}"/>
                             <Label Text="Start:"/>
-                            <Label Text="{Binding Start}" Margin="0,0,40,0"/>
+                            <Label Text="{Binding Start}"/>
                             <Label Text="End:"/>
-                            <Label Text="{Binding End}" Margin="0,0,40,0"/>
+                            <Label Text="{Binding End}"/>
                         </StackLayout>
                     </ViewCell>
                 </DataTemplate>

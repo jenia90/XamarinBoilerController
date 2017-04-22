@@ -7,9 +7,22 @@ namespace BoilerController.Models
 {
     public class Job : INotifyPropertyChanged
     {
+
         private string _end;
         private int _pin;
         private string _start;
+        private int _id;
+
+        [JsonProperty("id")]
+        public int Id
+        {
+            get { return _id; }
+            set
+            {
+                _id = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ID"));
+            }
+        }
 
         [JsonProperty("end")]
         public string End
