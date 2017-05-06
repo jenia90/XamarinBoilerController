@@ -31,6 +31,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)TestServer\boiler.db" />
-    <None Include="$(MSBuildThisFileDirectory)TestServer\TestServer.py" />
+    <None Include="$(MSBuildThisFileDirectory)TestServer\Server.py" />
   </ItemGroup>
 </Project>
