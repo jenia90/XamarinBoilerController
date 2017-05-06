@@ -1,9 +1,15 @@
 from flask import Flask, request
 import json
 import sqlite3
+from apscheduler.schedulers.background import BackgroundScheduler
 
 OnState = True # Replace with GPIO.HIGH
 OffState = False # Replace With GPIO.LOW
+
+#OnState = GPIO.HIGH
+#OffState = GPIO.LOW
+
+sched = 0
 
 app = Flask(__name__)
 pins = {17: {'name': 'LED', 'state': OffState}}
