@@ -14,8 +14,8 @@ namespace BoilerController.ViewModels
     {
         #region Fields
 
-        private readonly string _baseurl = "http://localhost:5000/";
-        //private readonly string _baseurl = "http://192.168.1.178:5000/"; // uncomment for production
+        private readonly string _baseurl = "http://localhost:5000/api/";
+        //private readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
         private string _status = "Status unavailable";
         private Color _statColor;
         private DateTime _onDate = DateTime.Now, _offDate = DateTime.Now;
@@ -132,7 +132,7 @@ namespace BoilerController.ViewModels
             {
                 if (value < OnTime)
                 {
-                    DisplayMessage("Error in end time", "End time cannot be before start time");
+                    //DisplayMessage("Error in end time", "End time cannot be before start time");
                     OffTime = DateTime.Now.TimeOfDay;
                     return;
                 }
@@ -158,25 +158,30 @@ namespace BoilerController.ViewModels
         /// </summary>
         private async void SwitchStatus()
         {
-            if (Status == "Off")
+            switch (Status)
             {
-                var response = await HttpRequestTask("setled17/1");
-                var content = await response.Content.ReadAsStringAsync();
-                if (content == "OK")
+                case "Off":
                 {
-                    Status = "On";
-                    StatColor = Color.Green;
+                    var response = await HttpRequestTask("setstate?dev=17&state=1");
+                    var content = await response.Content.ReadAsStringAsync();
+                    if (content == "OK")
+                    {
+                        Status = "On";
+                        StatColor = Color.Green;
+                    }
                 }
-            }
-            else if (Status == "On")
-            {
-                var response = await HttpRequestTask("setled17/0");
-                var content = await response.Content.ReadAsStringAsync();
-                if (content == "OK")
+                    break;
+                case "On":
                 {
-                    Status = "Off";
-                    StatColor = Color.Red;
+                    var response = await HttpRequestTask("setstate?dev=17&state=0");
+                    var content = await response.Content.ReadAsStringAsync();
+                    if (content == "OK")
+                    {
+                        Status = "Off";
+                        StatColor = Color.Red;
+                    }
                 }
+                    break;
             }
         }
 
@@ -185,29 +190,57 @@ namespace BoilerController.ViewModels
         /// </summary>
         private async void SetTimer()
         {
-            var request =
-                $@"settime?dev=17&ontime={OnTime:hh\:mm}&ondate={OnDate:yyyy-MM-dd}"+
-                $@"&offtime={OffTime:hh\:mm}&offdate={OffDate:yyyy-MM-dd}";
+            try
+            {
+                IsRefreshing = true;
+                var request =
+                        $@"settime?dev=17&ontime={OnTime:hh\:mm}&ondate={OnDate:yyyy-MM-dd}" +
+                        $@"&offtime={OffTime:hh\:mm}&offdate={OffDate:yyyy-MM-dd}";
 
 
-            await HttpRequestTask(request);
+                var response = await HttpRequestTask(request);
+                if (await response.Content.ReadAsStringAsync() == "OK")
+                {
+                    GetTimes();
+                }
+
+
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
 
         private async void GetTimes()
         {
-            var response = await HttpRequestTask("gettimes");
-            var job = await response.Content.ReadAsStringAsync();
-            Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
-
-            IsRefreshing = false;
+            try
+            {
+                var response = await HttpRequestTask("gettimes");
+                var job = await response.Content.ReadAsStringAsync();
+                Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
+    
+                IsRefreshing = false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         private async void RemoveItem(int id)
         {
-            var response = await HttpRequestTask("remove?id=" + id);
-            if (await response.Content.ReadAsStringAsync() == "")
+            try
             {
-                GetTimes();
+                var response = await HttpRequestTask("remove?id=" + id);
+                if (await response.Content.ReadAsStringAsync() == "OK")
+                {
+                    GetTimes();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 
@@ -216,26 +249,33 @@ namespace BoilerController.ViewModels
         /// </summary>
         private async void UpdateProps()
         {
-            var response = await HttpRequestTask("getled17");
-            if (response == null)
+            try
             {
-                return;
+                var response = await HttpRequestTask("getstate?dev=17");
+                if (response == null)
+                {
+                    return;
+                }
+                var content = await response.Content.ReadAsStringAsync();
+                if (content == "On")
+                {
+                    Status = "On";
+                    StatColor = Color.Green;
+                }
+                else if (content == "Off")
+                {
+                    Status = "Off";
+                    StatColor = Color.Red;
+                }
+                else
+                {
+                    Status = content;
+                    StatColor = Color.Blue;
+                }
             }
-            var content = await response.Content.ReadAsStringAsync();
-            if (content == "On")
+            catch (Exception)
             {
-                Status = "On";
-                StatColor = Color.Green;
-            }
-            else if (content == "Off")
-            {
-                Status = "Off";
-                StatColor = Color.Red;
-            }
-            else
-            {
-                Status = content;
-                StatColor = Color.Blue;
+                DisplayMessage("Server Unreachable", "Unable to connect to server");
             }
         }
 

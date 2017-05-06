@@ -33,6 +33,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <ViewCell.ContextActions>
+                            <MenuItem Text="Update"/> <!--TODO: Implement this shit!-->
                             <MenuItem Text="Remove" 
                                       Command="{Binding Path=BindingContext.DeleteCommand, Source={x:Reference Name=MainPageClass}}"
                                       CommandParameter="{Binding Id}"
