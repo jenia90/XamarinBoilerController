@@ -1,0 +1,8 @@
+version: '2.1'
+
+services:
+  boilercontroller.uwp:
+    image: boilercontroller.uwp
+    build:
+      context: .\BoilerController\BoilerController.UWP
+      dockerfile: Dockerfile

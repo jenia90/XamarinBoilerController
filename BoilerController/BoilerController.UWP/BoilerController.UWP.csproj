@@ -90,6 +90,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include=".dockerignore">
+      <DependentUpon>Dockerfile</DependentUpon>
+    </None>
+    <None Include="Dockerfile" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

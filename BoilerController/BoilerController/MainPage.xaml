@@ -5,13 +5,11 @@
              x:Class="BoilerController.MainPage"
              x:Name="MainPageClass">
 
-    <StackLayout Orientation="Vertical">
-        <Label Text="Welcome to Xamarin Forms!" 
-               VerticalOptions="Center" 
-               HorizontalOptions="Center" />
+    <StackLayout Orientation="Vertical" Margin="20">
         <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Center">
             <Label Text="Current Status: "/>
             <Label Text="{Binding Status}" TextColor="{Binding StatColor}"/>
+            <Button Text="Get Status" Command="{Binding GetStatusCommand}"/>
         </StackLayout>
         <Button Text="Switch Boiler" Command="{Binding SwitchCommand}"/>
         <Label Text="Pick start date and time:" HorizontalOptions="Center"/>

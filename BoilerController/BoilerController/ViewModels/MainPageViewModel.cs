@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BoilerController.Models;
@@ -144,6 +147,7 @@ namespace BoilerController.ViewModels
 
         #region Commands
 
+        public ICommand GetStatusCommand => new Command(UpdateProps);
         public ICommand SwitchCommand => new Command(SwitchStatus);
         public ICommand SetTimerCommand => new Command(SetTimer);
         public ICommand GetTimesCommand => new Command(GetTimes);
@@ -193,12 +197,18 @@ namespace BoilerController.ViewModels
             try
             {
                 IsRefreshing = true;
+                var job = JsonConvert.SerializeObject(new Job()
+                {
+                    Pin = 17,
+                    Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
+                    End = $@"{OffDate:yyyy-MM-dd} {OffTime:hh\:mm}"
+                });
                 var request =
                         $@"settime?dev=17&ontime={OnTime:hh\:mm}&ondate={OnDate:yyyy-MM-dd}" +
                         $@"&offtime={OffTime:hh\:mm}&offdate={OffDate:yyyy-MM-dd}";
 
 
-                var response = await HttpRequestTask(request);
+                var response = await HttpRequestTask("settime", job, "POST");
                 if (await response.Content.ReadAsStringAsync() == "OK")
                 {
                     GetTimes();
@@ -284,7 +294,7 @@ namespace BoilerController.ViewModels
         /// </summary>
         /// <param name="request" type="HttpResponseMessage">Request string to send</param>
         /// <returns>Return status from the server</returns>
-        private async Task<HttpResponseMessage> HttpRequestTask(string request)
+        private async Task<HttpResponseMessage> HttpRequestTask(string request, string json = "", string method = "GET")
         {
             HttpResponseMessage response;
 
@@ -292,7 +302,20 @@ namespace BoilerController.ViewModels
             {
                 try
                 {
-                    response = await client.GetAsync(_baseurl + request);
+                    switch (method)
+                    {
+                        case "GET":
+                            response = await client.GetAsync(_baseurl + request);
+                            break;
+                        case "POST":
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                            response = await client.PostAsync(_baseurl + request, new StringContent(json, Encoding.UTF8, "application/json"));
+                            break;
+                        default:
+                            response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                            break;
+
+                    }
                 }
                 catch (HttpRequestException e)
                 {
