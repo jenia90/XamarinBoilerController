@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MasterDetailPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:BoilerController"
+             xmlns:views="clr-namespace:BoilerController.Views"
+             x:Class="BoilerController.Views.MainPage"
+             x:Name="MainPageClass" MasterBehavior="Popover">
+    
+    <MasterDetailPage.Master>
+        <ContentPage Title="Boiler Controller">
+            <ContentPage.Content>
+                <StackLayout Padding="10">
+                    <Button Text="Back" Clicked="BackButton_OnClicked"/>
+                    <Button Text="Schedule" Clicked="ScheduleButton_OnClicked"/>
+                    <Button Text="Settings" Clicked="SettingsButton_OnClicked"/>
+                </StackLayout>
+            </ContentPage.Content>
+        </ContentPage>
+    </MasterDetailPage.Master>
+    <MasterDetailPage.Detail>
+    </MasterDetailPage.Detail>
+</MasterDetailPage>

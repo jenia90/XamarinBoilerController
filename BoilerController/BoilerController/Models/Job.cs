@@ -12,6 +12,7 @@ namespace BoilerController.Models
         private int _pin;
         private string _start;
         private int _id;
+        private string _type;
 
         [JsonProperty("id")]
         public int Id
@@ -57,6 +58,19 @@ namespace BoilerController.Models
                 if (value == _start) return;
                 _start = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Start"));
+            }
+        }
+
+        [JsonProperty("type")]
+        public string Type
+        {
+            get => _type;
+            set
+            {
+                if (value == _type) return;
+                _type = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Type"));
+
             }
         }
 

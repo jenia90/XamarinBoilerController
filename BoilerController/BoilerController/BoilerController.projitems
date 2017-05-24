@@ -12,15 +12,30 @@
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)MainPage.xaml.cs">
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\HttpHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SchedulePageViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SettingsPageViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Models\Job.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RelayCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainPageViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\MainPageDetail.xaml.cs">
+      <DependentUpon>MainPageDetail.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\SchedulePage.xaml.cs">
+      <DependentUpon>SchedulePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)MainPage.xaml">
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Views\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
@@ -32,5 +47,23 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)TestServer\boiler.db" />
     <None Include="$(MSBuildThisFileDirectory)TestServer\Server.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Views\SchedulePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Views\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Views\MainPageDetail.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

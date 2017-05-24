@@ -9,11 +9,13 @@ namespace BoilerController
 {
 	public partial class App : Application
 	{
+
+	    public static NavigationPage CurrentPage;
 		public App ()
 		{
 			InitializeComponent();
 
-			MainPage = new BoilerController.MainPage();
+			MainPage = new BoilerController.Views.MainPage();
 		}
 
 		protected override void OnStart ()

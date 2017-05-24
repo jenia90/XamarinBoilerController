@@ -10,6 +10,9 @@ using System.Windows.Input;
 using BoilerController.Models;
 using Newtonsoft.Json;
 using Xamarin.Forms;
+using BoilerController.Utilities;
+using BoilerController.Views;
+using Xamarin.Forms.Xaml;
 
 namespace BoilerController.ViewModels
 {
@@ -17,16 +20,9 @@ namespace BoilerController.ViewModels
     {
         #region Fields
 
-        private readonly string _baseurl = "http://localhost:5000/api/";
-        //private readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
         private string _status = "Status unavailable";
         private Color _statColor;
-        private DateTime _onDate = DateTime.Now, _offDate = DateTime.Now;
-        private TimeSpan _onTime = DateTime.Now.TimeOfDay,
-            _offTime = DateTime.Now.AddMinutes(45).TimeOfDay;
-
-        private ObservableCollection<Job> _jobs;
-        private bool _isRefreshing = false;
+        private Page _detail;
 
         #endregion
 
@@ -40,23 +36,13 @@ namespace BoilerController.ViewModels
 
         #region Props
 
-        public ObservableCollection<Job> Jobs
+        public Page Detail
         {
-            get => _jobs;
+            get => _detail;
             set
             {
-                _jobs = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Jobs"));
-            }
-        }
-
-        public bool IsRefreshing
-        {
-            get => _isRefreshing;
-            set
-            {
-                _isRefreshing = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsRefreshing"));
+                _detail = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Detail"));
             }
         }
 
@@ -80,82 +66,18 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public DateTime OnDate
-        {
-            get => _onDate;
-            set
-            {
-                if (value <= DateTime.Now)
-                {
-                    DisplayMessage("Error in start date", "Start date cannot be in the past");
-                    OnDate = DateTime.Now;
-                    return;
-                }
-                _onDate = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OnDate"));
-            }
-        }
-
-        public TimeSpan OnTime
-        {
-            get => _onTime;
-            set
-            {
-                if (value <= DateTime.Today.TimeOfDay)
-                {
-                    DisplayMessage("Error in start time", "Start time cannot be in the past");
-                    OnTime = DateTime.Now.TimeOfDay;
-                    return;
-                }
-                _onTime = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OnTime"));
-            }
-        }
-
-        public DateTime OffDate
-        {
-            get => _offDate;
-            set
-            {
-                if (value < OnDate)
-                {
-                    DisplayMessage("Error in end time", "End date cannot be before start time");
-                    OffDate = DateTime.Now;
-                    return;
-                }
-                _offDate = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OffDate"));
-            }
-        }
-
-        public TimeSpan OffTime
-        {
-            get => _offTime;
-            set
-            {
-                if (value < OnTime)
-                {
-                    //DisplayMessage("Error in end time", "End time cannot be before start time");
-                    OffTime = DateTime.Now.TimeOfDay;
-                    return;
-                }
-                _offTime = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OffTime"));
-            }
-        }
+        
         #endregion
 
         #region Commands
 
         public ICommand GetStatusCommand => new Command(UpdateProps);
         public ICommand SwitchCommand => new Command(SwitchStatus);
-        public ICommand SetTimerCommand => new Command(SetTimer);
-        public ICommand GetTimesCommand => new Command(GetTimes);
-        public ICommand DeleteCommand => new Command<int>(RemoveItem);
 
         #endregion
 
         #region Methods
+
 
         /// <summary>
         /// Sends a command to the boiler to switch it's status manually.
@@ -166,7 +88,7 @@ namespace BoilerController.ViewModels
             {
                 case "Off":
                 {
-                    var response = await HttpRequestTask("setstate?dev=17&state=1");
+                    var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=1");
                     var content = await response.Content.ReadAsStringAsync();
                     if (content == "OK")
                     {
@@ -177,7 +99,7 @@ namespace BoilerController.ViewModels
                     break;
                 case "On":
                 {
-                    var response = await HttpRequestTask("setstate?dev=17&state=0");
+                    var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=0");
                     var content = await response.Content.ReadAsStringAsync();
                     if (content == "OK")
                     {
@@ -190,78 +112,13 @@ namespace BoilerController.ViewModels
         }
 
         /// <summary>
-        /// Sends a schedule command to the boiler
-        /// </summary>
-        private async void SetTimer()
-        {
-            try
-            {
-                IsRefreshing = true;
-                var job = JsonConvert.SerializeObject(new Job()
-                {
-                    Pin = 17,
-                    Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
-                    End = $@"{OffDate:yyyy-MM-dd} {OffTime:hh\:mm}"
-                });
-                var request =
-                        $@"settime?dev=17&ontime={OnTime:hh\:mm}&ondate={OnDate:yyyy-MM-dd}" +
-                        $@"&offtime={OffTime:hh\:mm}&offdate={OffDate:yyyy-MM-dd}";
-
-
-                var response = await HttpRequestTask("settime", job, "POST");
-                if (await response.Content.ReadAsStringAsync() == "OK")
-                {
-                    GetTimes();
-                }
-
-
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-        }
-
-        private async void GetTimes()
-        {
-            try
-            {
-                var response = await HttpRequestTask("gettimes");
-                var job = await response.Content.ReadAsStringAsync();
-                Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
-    
-                IsRefreshing = false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }
-
-        private async void RemoveItem(int id)
-        {
-            try
-            {
-                var response = await HttpRequestTask("remove?id=" + id);
-                if (await response.Content.ReadAsStringAsync() == "OK")
-                {
-                    GetTimes();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }
-
-        /// <summary>
         /// Updates properties on startup
         /// </summary>
         private async void UpdateProps()
         {
             try
             {
-                var response = await HttpRequestTask("getstate?dev=17");
+                var response = await HttpHandler.HttpRequestTask("getstate?dev=17");
                 if (response == null)
                 {
                     return;
@@ -285,51 +142,8 @@ namespace BoilerController.ViewModels
             }
             catch (Exception)
             {
-                DisplayMessage("Server Unreachable", "Unable to connect to server");
+                HttpHandler.DisplayMessage("Server Unreachable", "Unable to connect to server");
             }
-        }
-
-        /// <summary>
-        /// Sends formated request to the boiler server
-        /// </summary>
-        /// <param name="request" type="HttpResponseMessage">Request string to send</param>
-        /// <returns>Return status from the server</returns>
-        private async Task<HttpResponseMessage> HttpRequestTask(string request, string json = "", string method = "GET")
-        {
-            HttpResponseMessage response;
-
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    switch (method)
-                    {
-                        case "GET":
-                            response = await client.GetAsync(_baseurl + request);
-                            break;
-                        case "POST":
-                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                            response = await client.PostAsync(_baseurl + request, new StringContent(json, Encoding.UTF8, "application/json"));
-                            break;
-                        default:
-                            response = new HttpResponseMessage(HttpStatusCode.BadRequest);
-                            break;
-
-                    }
-                }
-                catch (HttpRequestException e)
-                {
-                    DisplayMessage("Server Unreachable", "Unable to connect to server");
-                    return null;
-                }
-            }
-
-            return response;
-        }
-
-        private async void DisplayMessage(string title, string message, string cancel = "OK")
-        {
-            await App.Current.MainPage.DisplayAlert(title, message, cancel);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

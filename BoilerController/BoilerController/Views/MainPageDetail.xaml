@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BoilerController.Views.MainPageDetail" Title="Boiler Controller">
+    
+    <StackLayout Orientation="Vertical" Margin="20">
+            <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Center">
+                <Label Text="Current Status: "/>
+                <Label Text="{Binding Status}" TextColor="{Binding StatColor}"/>
+                <Button Text="Get Status" Command="{Binding GetStatusCommand}"/>
+            </StackLayout>
+            <Button Text="Switch Boiler" Command="{Binding SwitchCommand}"/>
+
+        </StackLayout>
+    </ContentPage>
