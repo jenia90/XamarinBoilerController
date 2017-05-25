@@ -10,7 +10,7 @@
         <ContentPage Title="Boiler Controller">
             <ContentPage.Content>
                 <StackLayout Padding="10">
-                    <Button Text="Back" Clicked="BackButton_OnClicked"/>
+                    <Button Text="Main" Clicked="BackButton_OnClicked"/>
                     <Button Text="Schedule" Clicked="ScheduleButton_OnClicked"/>
                     <Button Text="Settings" Clicked="SettingsButton_OnClicked"/>
                 </StackLayout>

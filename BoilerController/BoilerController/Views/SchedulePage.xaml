@@ -3,18 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BoilerController.Views.SchedulePage" x:Name="SchedulePageClass" Title="Schedule">
     <ContentPage.Content>
-        <StackLayout Orientation="Vertical">
-            <Label Text="Pick start date and time:" HorizontalOptions="Center"/>
+        <StackLayout Orientation="Vertical" Margin="10">
             <StackLayout Orientation="Horizontal">
+                <Label Text="Start date:"/>
                 <DatePicker Date="{Binding OnDate, Mode=TwoWay}"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Start time:"/>
                 <TimePicker Time="{Binding OnTime, Mode=TwoWay}"/>
             </StackLayout>
-            <Label Text="Pick end date and time:" HorizontalOptions="Center"/>
             <StackLayout Orientation="Horizontal">
+                <Label Text="End date:"/>
                 <DatePicker Date="{Binding OffDate, Mode=TwoWay}"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="End time:" HorizontalOptions="Center"/>
                 <TimePicker Time="{Binding OffTime, Mode=TwoWay}"/>
             </StackLayout>
-            <Button Text="Set Timer" Command="{Binding SetTimerCommand}"/>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                <Button Text="Set Timer" Command="{Binding SetTimerCommand}"/>
+                <Button Text="Get Times" Command="{Binding GetTimesCommand}"/>
+            </StackLayout>
             <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}" 
                       IsPullToRefreshEnabled="True" 
                       IsRefreshing="{Binding IsRefreshing}" 
@@ -43,7 +52,6 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Button Text="Get Times" Command="{Binding GetTimesCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
