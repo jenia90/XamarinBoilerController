@@ -1,24 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace BoilerController.Utilities
 {
-    class HttpHandler
+    internal class HttpHandler
     {
-        private static readonly string _baseurl = "http://192.168.1.120:5000/api/";
         //private static readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
 
+        public static string BaseUrl { get; set; } = "http://192.168.1.120:5000/api/";
+
         /// <summary>
-        /// Sends formated request to the boiler server
+        ///     Sends formated request to the boiler server
         /// </summary>
         /// <param name="request" type="HttpResponseMessage">Request string to send</param>
         /// <returns>Return status from the server</returns>
-        public static  async Task<HttpResponseMessage> HttpRequestTask(string request, string json = "", string method = "GET")
+        public static async Task<HttpResponseMessage> HttpRequestTask(string request, string json = "",
+            string method = "GET")
         {
             HttpResponseMessage response;
 
@@ -29,16 +30,17 @@ namespace BoilerController.Utilities
                     switch (method)
                     {
                         case "GET":
-                            response = await client.GetAsync(_baseurl + request);
+                            response = await client.GetAsync(BaseUrl + request);
                             break;
                         case "POST":
-                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                            response = await client.PostAsync(_baseurl + request, new StringContent(json, Encoding.UTF8, "application/json"));
+                            client.DefaultRequestHeaders.Accept.Add(
+                                new MediaTypeWithQualityHeaderValue("application/json"));
+                            response = await client.PostAsync(BaseUrl + request,
+                                new StringContent(json, Encoding.UTF8, "application/json"));
                             break;
                         default:
                             response = new HttpResponseMessage(HttpStatusCode.BadRequest);
                             break;
-
                     }
                 }
                 catch (HttpRequestException e)
@@ -51,9 +53,9 @@ namespace BoilerController.Utilities
             return response;
         }
 
-        public static  async void DisplayMessage(string title, string message, string cancel = "OK")
+        public static async void DisplayMessage(string title, string message, string cancel = "OK")
         {
-            await App.Current.MainPage.DisplayAlert(title, message, cancel);
+            await Application.Current.MainPage.DisplayAlert(title, message, cancel);
         }
     }
 }

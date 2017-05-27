@@ -1,43 +1,47 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:BoilerController.Common.Converters;assembly=BoilerController.Common"
              x:Class="BoilerController.Views.MainPageDetail" Title="Boiler Controller">
-    <!--
-    <StackLayout Orientation="Vertical" Margin="20">
-            <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Center">
-                <Label VerticalOptions="Center" Text="Current Status: "/>
-                <Label VerticalOptions="Center" Text="{Binding Status}" TextColor="{Binding StatColor}"/>
-                <Button VerticalOptions="Center" Text="Get Status" Command="{Binding GetStatusCommand}"/>
-            </StackLayout>
-        
-
-        </StackLayout>
-    -->
     
+    <ContentPage.Resources>
+        <converters:StatusStringConverter x:Key="StatusStringConverter" TrueText="On" FalseText="Off" />
+    </ContentPage.Resources>
+
     <Grid>
-        
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="20*"/>
-            <RowDefinition Height="20*"/>
-            <RowDefinition Height="20*"/>
-            <RowDefinition Height="20*"/>
+            <RowDefinition Height="20*" />
+            <RowDefinition Height="20*" />
+            <RowDefinition Height="20*" />
+            <RowDefinition Height="20*" />
         </Grid.RowDefinitions>
-        
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20*"/>
-            <ColumnDefinition Width="60*"/>
-            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="20*" />
+            <ColumnDefinition Width="60*" />
+            <ColumnDefinition Width="20*" />
         </Grid.ColumnDefinitions>
 
         <StackLayout Grid.ColumnSpan="3" Grid.Row="0" Orientation="Horizontal" HorizontalOptions="Center">
-            <Label VerticalOptions="Center" Text="Current Status: "/>
-            <Label VerticalOptions="Center" Text="{Binding Status}" TextColor="{Binding StatColor}"/>
-            <Button VerticalOptions="Center" Text="Get Status" Command="{Binding GetStatusCommand}"/>
+            <Label VerticalOptions="Center" Text="Current Status: " />
+            <Label VerticalOptions="Center"
+                   Text="{Binding IsToggled, Converter={StaticResource StatusStringConverter}}"
+                   TextColor="{Binding StatColor}" />
+            <Button VerticalOptions="Center" Text="Get Status" Command="{Binding GetStatusCommand}" />
         </StackLayout>
-        <Button Grid.Column="1"  Grid.RowSpan="2" Grid.Row="1"  
+        <Switch Grid.Row="3" Grid.ColumnSpan="3" HorizontalOptions="Center" IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />
+        
+    
+        <!--<Button Grid.Column="1"  Grid.RowSpan="2" Grid.Row="1"  
                 Text="Switch Boiler" 
                 Command="{Binding SwitchCommand}" 
                 BorderRadius="15" 
-                BackgroundColor="{Binding StatColor}"/>
+                BackgroundColor="{Binding StatColor}"/>-->
+        
+    
     </Grid>
-    </ContentPage>
+</ContentPage>
+
+<!--, Converter={StaticResource StatusToBoolConverter}}"-->

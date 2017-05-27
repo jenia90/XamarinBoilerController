@@ -1,52 +1,53 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BoilerController.Views.SchedulePage" x:Name="SchedulePageClass" Title="Schedule">
     <ContentPage.Content>
         <StackLayout Orientation="Vertical" Margin="10">
             <StackLayout Orientation="Horizontal">
-                <Label Text="Start date:"/>
-                <DatePicker Date="{Binding OnDate, Mode=TwoWay}"/>
+                <Label VerticalOptions="Center" Text="Start date:" />
+                <DatePicker VerticalOptions="Center" Date="{Binding OnDate, Mode=TwoWay}" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label Text="Start time:"/>
-                <TimePicker Time="{Binding OnTime, Mode=TwoWay}"/>
+                <Label VerticalOptions="Center" Text="Start time:" />
+                <TimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label Text="End date:"/>
-                <DatePicker Date="{Binding OffDate, Mode=TwoWay}"/>
+                <Label VerticalOptions="Center" Text="End date:" />
+                <DatePicker VerticalOptions="Center" Date="{Binding OffDate, Mode=TwoWay}" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label Text="End time:" HorizontalOptions="Center"/>
-                <TimePicker Time="{Binding OffTime, Mode=TwoWay}"/>
+                <Label VerticalOptions="Center" Text="End time:" HorizontalOptions="Center" />
+                <TimePicker VerticalOptions="Center" Time="{Binding OffTime, Mode=TwoWay}" />
             </StackLayout>
             <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-                <Button Text="Set Timer" Command="{Binding SetTimerCommand}"/>
-                <Button Text="Get Times" Command="{Binding GetTimesCommand}"/>
+                <Button Text="Set Timer" Command="{Binding SetTimerCommand}" />
+                <Button Text="Get Times" Command="{Binding GetTimesCommand}" />
             </StackLayout>
-            <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}" 
-                      IsPullToRefreshEnabled="True" 
-                      IsRefreshing="{Binding IsRefreshing}" 
+            <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}"
+                      IsPullToRefreshEnabled="True"
+                      IsRefreshing="{Binding IsRefreshing}"
                       RefreshCommand="{Binding GetTimesCommand}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
                             <ViewCell.ContextActions>
-                                <MenuItem Text="Update"/>
+                                <MenuItem Text="Update" />
                                 <!--TODO: Implement this shit!-->
-                                <MenuItem Text="Remove" 
+                                <MenuItem Text="Remove"
                                           Command="{Binding Path=BindingContext.DeleteCommand, Source={x:Reference Name=SchedulePageClass}}"
                                           CommandParameter="{Binding Id}"
-                                          IsDestructive="True"/>
+                                          IsDestructive="True" />
                             </ViewCell.ContextActions>
 
                             <StackLayout Orientation="Horizontal">
-                                <Label Text="Pin:"/>
-                                <Label Text="{Binding Pin}"/>
-                                <Label Text="Start:"/>
-                                <Label Text="{Binding Start}"/>
-                                <Label Text="End:"/>
-                                <Label Text="{Binding End}"/>
+                                <Label Text="Pin:" />
+                                <Label Text="{Binding Pin}" />
+                                <Label Text="Start:" />
+                                <Label Text="{Binding Start}" />
+                                <Label Text="End:" />
+                                <Label Text="{Binding End}" />
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

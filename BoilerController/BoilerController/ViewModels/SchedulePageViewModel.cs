@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Text;
 using System.Windows.Input;
 using BoilerController.Models;
 using BoilerController.Utilities;
@@ -11,15 +9,16 @@ using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
 {
-    class SchedulePageViewModel : INotifyPropertyChanged
+    internal class SchedulePageViewModel : INotifyPropertyChanged
     {
-
-        private DateTime _onDate = DateTime.Now, _offDate = DateTime.Now;
-        private TimeSpan _onTime = DateTime.Now.TimeOfDay,
-            _offTime = DateTime.Now.AddMinutes(45).TimeOfDay;
+        private bool _isRefreshing;
 
         private ObservableCollection<Job> _jobs;
-        private bool _isRefreshing = false;
+
+        private DateTime _onDate = DateTime.Now, _offDate = DateTime.Now;
+
+        private TimeSpan _onTime = DateTime.Now.TimeOfDay,
+            _offTime = DateTime.Now.AddMinutes(45).TimeOfDay;
 
         public ObservableCollection<Job> Jobs
         {
@@ -109,15 +108,17 @@ namespace BoilerController.ViewModels
         public ICommand GetTimesCommand => new Command(GetTimes);
         public ICommand DeleteCommand => new Command<int>(RemoveItem);
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         /// <summary>
-        /// Sends a schedule command to the boiler
+        ///     Sends a schedule command to the boiler
         /// </summary>
         private async void SetTimer()
         {
             try
             {
                 IsRefreshing = true;
-                var job = JsonConvert.SerializeObject(new Job()
+                var job = JsonConvert.SerializeObject(new Job
                 {
                     Pin = 17,
                     Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
@@ -128,11 +129,7 @@ namespace BoilerController.ViewModels
 
                 var response = await HttpHandler.HttpRequestTask("settime", job, "POST");
                 if (await response.Content.ReadAsStringAsync() == "OK")
-                {
                     GetTimes();
-                }
-
-
             }
             catch (Exception exception)
             {
@@ -140,13 +137,13 @@ namespace BoilerController.ViewModels
             }
         }
 
-        private async void SetCronJob()
+        private void SetCronJob()
         {
             try
             {
                 IsRefreshing = true;
 
-                var job = JsonConvert.SerializeObject(new Job() { });
+                var job = JsonConvert.SerializeObject(new Job());
             }
             catch (Exception e)
             {
@@ -176,16 +173,12 @@ namespace BoilerController.ViewModels
             {
                 var response = await HttpHandler.HttpRequestTask("remove?id=" + id);
                 if (await response.Content.ReadAsStringAsync() == "OK")
-                {
                     GetTimes();
-                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

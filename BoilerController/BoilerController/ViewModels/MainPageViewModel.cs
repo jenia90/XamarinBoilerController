@@ -1,37 +1,30 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using BoilerController.Models;
-using Newtonsoft.Json;
-using Xamarin.Forms;
 using BoilerController.Utilities;
-using BoilerController.Views;
-using Xamarin.Forms.Xaml;
+using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
 {
-    class MainPageViewModel : INotifyPropertyChanged
+    internal class MainPageViewModel : INotifyPropertyChanged
     {
-        #region Fields
-
-        private string _status = "Status unavailable";
-        private Color _statColor;
-        private Page _detail;
-
-        #endregion
-
         #region ctor
 
         public MainPageViewModel()
         {
             UpdateProps();
-        } 
+        }
+
+        #endregion
+
+        #region Fields
+
+        private string _status = "Status unavailable";
+        private Color _statColor;
+        private Page _detail;
+        private bool _isToggled;
+        private bool _isConnectedToServer;
+
         #endregion
 
         #region Props
@@ -66,7 +59,26 @@ namespace BoilerController.ViewModels
             }
         }
 
-        
+        public bool IsToggled
+        {
+            get => _isToggled;
+            set
+            {
+                _isToggled = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsToggled"));
+            }
+        }
+
+        public bool IsConnectedToServer
+        {
+            get => _isConnectedToServer;
+            set
+            {
+                _isConnectedToServer = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsConnectedToServer"));
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -78,41 +90,40 @@ namespace BoilerController.ViewModels
 
         #region Methods
 
-
         /// <summary>
-        /// Sends a command to the boiler to switch it's status manually.
+        ///     Sends a command to the boiler to switch it's status manually.
         /// </summary>
         private async void SwitchStatus()
         {
-            switch (Status)
+            switch (IsToggled)
             {
-                case "Off":
-                {
-                    var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=1");
-                    var content = await response.Content.ReadAsStringAsync();
-                    if (content == "OK")
+                case true:
                     {
-                        Status = "On";
-                        StatColor = Color.Green;
+                        var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=1");
+                        var content = await response.Content.ReadAsStringAsync();
+                        if (content == "OK")
+                        {
+                            IsToggled = false;
+                            StatColor = Color.Green;
+                        }
                     }
-                }
                     break;
-                case "On":
-                {
-                    var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=0");
-                    var content = await response.Content.ReadAsStringAsync();
-                    if (content == "OK")
+                case false:
                     {
-                        Status = "Off";
-                        StatColor = Color.Red;
+                        var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=0");
+                        var content = await response.Content.ReadAsStringAsync();
+                        if (content == "OK")
+                        {
+                            IsToggled = true;
+                            StatColor = Color.Red;
+                        }
                     }
-                }
                     break;
             }
         }
 
         /// <summary>
-        /// Updates properties on startup
+        ///     Updates properties on startup
         /// </summary>
         private async void UpdateProps()
         {
@@ -121,22 +132,27 @@ namespace BoilerController.ViewModels
                 var response = await HttpHandler.HttpRequestTask("getstate?dev=17");
                 if (response == null)
                 {
+                    IsConnectedToServer = false;
                     return;
                 }
                 var content = await response.Content.ReadAsStringAsync();
                 if (content == "On")
                 {
-                    Status = "On";
+                    IsConnectedToServer = true;
+                    IsToggled = true;
                     StatColor = Color.Green;
                 }
                 else if (content == "Off")
                 {
-                    Status = "Off";
+                    IsConnectedToServer = true;
+                    IsToggled = false;
                     StatColor = Color.Red;
                 }
                 else
                 {
-                    Status = content;
+                    IsToggled = false;
+                    IsConnectedToServer = false;
+                    //Status = content;
                     StatColor = Color.Blue;
                 }
             }
@@ -147,6 +163,7 @@ namespace BoilerController.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-    } 
+    }
+
     #endregion
 }
