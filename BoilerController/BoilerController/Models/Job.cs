@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
@@ -13,6 +14,7 @@ namespace BoilerController.Models
         private string _start;
         private int _id;
         private string _type;
+        private IEnumerable<string> _daysList;
 
         [JsonProperty("id")]
         public int Id
@@ -71,6 +73,18 @@ namespace BoilerController.Models
                 _type = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Type"));
 
+            }
+        }
+
+        [JsonProperty("days")]
+        public IEnumerable<string> DaysList
+        {
+            get => _daysList;
+            set
+            {
+                if(value.Equals(_daysList)) return;
+                _daysList = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DaysList"));
             }
         }
 

@@ -5,6 +5,7 @@
              x:Class="BoilerController.Views.SchedulePage" x:Name="SchedulePageClass" Title="Schedule">
     <ContentPage.Content>
         <StackLayout Orientation="Vertical" Margin="10">
+            
             <StackLayout Orientation="Horizontal">
                 <Label VerticalOptions="Center" Text="Start date:" />
                 <DatePicker VerticalOptions="Center" Date="{Binding OnDate, Mode=TwoWay}" />
@@ -14,15 +15,26 @@
                 <TimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label VerticalOptions="Center" Text="End date:" />
-                <DatePicker VerticalOptions="Center" Date="{Binding OffDate, Mode=TwoWay}" />
+                <Label VerticalOptions="Center" Text="Duration:"/>
+                <Picker VerticalOptions="Center" ItemsSource="{Binding Durations}" SelectedIndex="{Binding SelectedDuration, Mode=TwoWay}"/>
             </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label VerticalOptions="Center" Text="End time:" HorizontalOptions="Center" />
-                <TimePicker VerticalOptions="Center" Time="{Binding OffTime, Mode=TwoWay}" />
-            </StackLayout>
+
+            <ListView ItemsSource="{Binding Days}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal">
+                                <Label HorizontalOptions="Start" Text="{Binding Day}"/>
+                                <Switch HorizontalOptions="End" IsToggled="{Binding IsSelected}"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
             <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
                 <Button Text="Set Timer" Command="{Binding SetTimerCommand}" />
+                <Button Text="Add Cron Job" Command="{Binding SetCronCommand}"/>
                 <Button Text="Get Times" Command="{Binding GetTimesCommand}" />
             </StackLayout>
             <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}"
@@ -42,12 +54,9 @@
                             </ViewCell.ContextActions>
 
                             <StackLayout Orientation="Horizontal">
-                                <Label Text="Pin:" />
-                                <Label Text="{Binding Pin}" />
-                                <Label Text="Start:" />
-                                <Label Text="{Binding Start}" />
-                                <Label Text="End:" />
-                                <Label Text="{Binding End}" />
+                                <Label Text="{Binding Path=Pin, StringFormat='Pin: {0}'}" />
+                                <Label Text="{Binding Path=Start, StringFormat='Start: {0}'}" />
+                                <Label Text="{Binding Path=End, StringFormat='End: {0}'}" />
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

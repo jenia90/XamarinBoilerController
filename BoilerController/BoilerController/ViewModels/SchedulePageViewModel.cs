@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-using BoilerController.Models;
 using BoilerController.Common.Utilities;
+using BoilerController.Models;
 using Newtonsoft.Json;
 using Xamarin.Forms;
 
@@ -15,10 +16,38 @@ namespace BoilerController.ViewModels
 
         private ObservableCollection<Job> _jobs;
 
-        private DateTime _onDate = DateTime.Now, _offDate = DateTime.Now;
+        private DateTime _onDate = DateTime.Now;
 
-        private TimeSpan _onTime = DateTime.Now.TimeOfDay,
-            _offTime = DateTime.Now.AddMinutes(45).TimeOfDay;
+        private TimeSpan _onTime = DateTime.Now.TimeOfDay;
+
+        private int _selectedDuration;
+        private ObservableCollection<WeekDay> _days;
+
+        public SchedulePageViewModel()
+        {
+            Durations = new ObservableCollection<string>
+            {
+                "15 mins",
+                "30 mins",
+                "45 mins",
+                "1 hour",
+                "1 hour 15 mins",
+                "1 hour 30 mins",
+                "1 hour 45 mins",
+                "2 hours"
+            };
+
+            Days = new ObservableCollection<WeekDay>
+            {
+                new WeekDay {Day = "Sun", IsSelected = false},
+                new WeekDay {Day = "Mon", IsSelected = false},
+                new WeekDay {Day = "Tue", IsSelected = false},
+                new WeekDay {Day = "Wed", IsSelected = false},
+                new WeekDay {Day = "Thu", IsSelected = false},
+                new WeekDay {Day = "Fri", IsSelected = false},
+                new WeekDay {Day = "Sat", IsSelected = false}
+            };
+        }
 
         public ObservableCollection<Job> Jobs
         {
@@ -47,7 +76,7 @@ namespace BoilerController.ViewModels
             {
                 if (value <= DateTime.Now)
                 {
-                    HttpHandler.DisplayMessage("Error in start date", "Start date cannot be in the past");
+                    App.CurrentPage.DisplayAlert("Error", "Start date cannot be in the past", "Dismiss");
                     OnDate = DateTime.Now;
                     return;
                 }
@@ -63,7 +92,7 @@ namespace BoilerController.ViewModels
             {
                 if (value <= DateTime.Today.TimeOfDay)
                 {
-                    HttpHandler.DisplayMessage("Error in start time", "Start time cannot be in the past");
+                    App.CurrentPage.DisplayAlert("Error", "Start time cannot be in the past", "Dismiss");
                     OnTime = DateTime.Now.TimeOfDay;
                     return;
                 }
@@ -72,39 +101,30 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public DateTime OffDate
+        public ObservableCollection<string> Durations { get; }
+
+        public ObservableCollection<WeekDay> Days
         {
-            get => _offDate;
-            set
+            get => _days;
+            private set
             {
-                if (value < OnDate)
-                {
-                    HttpHandler.DisplayMessage("Error in end time", "End date cannot be before start time");
-                    OffDate = DateTime.Now;
-                    return;
-                }
-                _offDate = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OffDate"));
+                _days = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Days"));
             }
         }
 
-        public TimeSpan OffTime
+        public int SelectedDuration
         {
-            get => _offTime;
+            get => _selectedDuration;
             set
             {
-                if (value < OnTime)
-                {
-                    //DisplayMessage("Error in end time", "End time cannot be before start time");
-                    OffTime = DateTime.Now.TimeOfDay;
-                    return;
-                }
-                _offTime = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OffTime"));
+                _selectedDuration = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedDuration"));
             }
         }
 
         public ICommand SetTimerCommand => new Command(SetTimer);
+        public ICommand SetCronCommand => new Command(SetCronJob);
         public ICommand GetTimesCommand => new Command(GetTimes);
         public ICommand DeleteCommand => new Command<int>(RemoveItem);
 
@@ -122,7 +142,7 @@ namespace BoilerController.ViewModels
                 {
                     Pin = 17,
                     Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
-                    End = $@"{OffDate:yyyy-MM-dd} {OffTime:hh\:mm}",
+                    End = $@"{OnDate:yyyy-MM-dd} {OnTime.Add(new TimeSpan(0, SelectedDuration * 15 + 15, 0)):hh\:mm}",
                     Type = "datetime"
                 });
 
@@ -137,13 +157,27 @@ namespace BoilerController.ViewModels
             }
         }
 
-        private void SetCronJob()
+        private async void SetCronJob()
         {
             try
             {
                 IsRefreshing = true;
 
-                var job = JsonConvert.SerializeObject(new Job());
+                var days = from weekDay in Days where weekDay.IsSelected select weekDay.Day;
+
+
+                var job = JsonConvert.SerializeObject(new Job
+                {
+                    Pin = 17,
+                    Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
+                    End = $@"{OnDate:yyyy-MM-dd} {OnTime.Add(new TimeSpan(0, SelectedDuration * 15 + 15, 0)):hh\:mm}",
+                    Type = "cron",
+                    DaysList = days
+                });
+
+                var response = await HttpHandler.HttpRequestTask("addcron", job, "POST");
+                if (await response.Content.ReadAsStringAsync() == "OK")
+                    GetTimes();
             }
             catch (Exception e)
             {

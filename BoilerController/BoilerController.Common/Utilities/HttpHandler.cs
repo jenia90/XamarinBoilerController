@@ -11,7 +11,7 @@ namespace BoilerController.Common.Utilities
     {
         //private static readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
 
-        public static string BaseUrl { get; set; } = "192.168.1.120:5000";
+        public static string BaseUrl { get; set; } = "localhost:5000";
 
         /// <summary>
         ///     Sends formated request to the boiler server
