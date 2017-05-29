@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Input;
-using BoilerController.Utilities;
+using BoilerController.Common.Utilities;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
@@ -64,8 +64,12 @@ namespace BoilerController.ViewModels
             get => _isToggled;
             set
             {
-                _isToggled = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsToggled"));
+                if (value != _isToggled)
+                {
+                    _isToggled = value;
+                    SwitchStatus(value);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsToggled"));
+                }
             }
         }
 
@@ -84,7 +88,6 @@ namespace BoilerController.ViewModels
         #region Commands
 
         public ICommand GetStatusCommand => new Command(UpdateProps);
-        public ICommand SwitchCommand => new Command(SwitchStatus);
 
         #endregion
 
@@ -93,9 +96,9 @@ namespace BoilerController.ViewModels
         /// <summary>
         ///     Sends a command to the boiler to switch it's status manually.
         /// </summary>
-        private async void SwitchStatus()
+        private async void SwitchStatus(bool state)
         {
-            switch (IsToggled)
+            switch (state)
             {
                 case true:
                     {
@@ -103,7 +106,6 @@ namespace BoilerController.ViewModels
                         var content = await response.Content.ReadAsStringAsync();
                         if (content == "OK")
                         {
-                            IsToggled = false;
                             StatColor = Color.Green;
                         }
                     }
@@ -114,7 +116,6 @@ namespace BoilerController.ViewModels
                         var content = await response.Content.ReadAsStringAsync();
                         if (content == "OK")
                         {
-                            IsToggled = true;
                             StatColor = Color.Red;
                         }
                     }
@@ -123,7 +124,7 @@ namespace BoilerController.ViewModels
         }
 
         /// <summary>
-        ///     Updates properties on startup
+        /// Updates properties on startup
         /// </summary>
         private async void UpdateProps()
         {
@@ -136,25 +137,26 @@ namespace BoilerController.ViewModels
                     return;
                 }
                 var content = await response.Content.ReadAsStringAsync();
-                if (content == "On")
+                switch(content)
                 {
-                    IsConnectedToServer = true;
-                    IsToggled = true;
-                    StatColor = Color.Green;
+                    case "On":
+                        IsConnectedToServer = true;
+                        _isToggled = true;
+                        StatColor = Color.Green;
+                        break;
+                    case "Off":
+                        IsConnectedToServer = true;
+                        _isToggled = false;
+                        StatColor = Color.Red;
+                        break;
+                    default:
+                        IsConnectedToServer = false;
+                        _isToggled = false;
+                        break;
+
                 }
-                else if (content == "Off")
-                {
-                    IsConnectedToServer = true;
-                    IsToggled = false;
-                    StatColor = Color.Red;
-                }
-                else
-                {
-                    IsToggled = false;
-                    IsConnectedToServer = false;
-                    //Status = content;
-                    StatColor = Color.Blue;
-                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsToggled"));
             }
             catch (Exception)
             {

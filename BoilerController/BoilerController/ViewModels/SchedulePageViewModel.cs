@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 using BoilerController.Models;
-using BoilerController.Utilities;
+using BoilerController.Common.Utilities;
 using Newtonsoft.Json;
 using Xamarin.Forms;
 

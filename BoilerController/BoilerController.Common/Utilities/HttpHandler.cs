@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
-namespace BoilerController.Utilities
+namespace BoilerController.Common.Utilities
 {
-    internal class HttpHandler
+    public class HttpHandler
     {
         //private static readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
 

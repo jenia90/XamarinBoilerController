@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows.Input;
-using BoilerController.Utilities;
+using BoilerController.Common.Utilities;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels

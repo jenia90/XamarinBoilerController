@@ -3,5 +3,5 @@
 	<uses-sdk android:minSdkVersion="23" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<application android:label="Boiler Controller"></application>
+	<application android:label="Boiler Controller" android:icon="@drawable/Icon"></application>
 </manifest>
