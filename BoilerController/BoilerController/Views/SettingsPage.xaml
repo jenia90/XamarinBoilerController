@@ -6,8 +6,8 @@
     <StackLayout Margin="10">
         <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
             <Label VerticalOptions="Center" Text="Server Address" />
-            <Entry HorizontalOptions="Center" Placeholder="Server Address" Text="{Binding ServerAddress}" />
+            <Entry HorizontalOptions="Center" Placeholder="Server Address" Text="{Binding ServerAddress, Mode=TwoWay}" />
         </StackLayout>
-        <Button Text="Save" HorizontalOptions="Center" />
+        <Button Text="Save" HorizontalOptions="Center" Command="{Binding SaveCommand}"/>
     </StackLayout>
 </ContentPage>

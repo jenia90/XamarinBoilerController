@@ -7,11 +7,15 @@ namespace BoilerController.ViewModels
 {
     internal class SettingsPageViewModel : INotifyPropertyChanged
     {
+        public SettingsPageViewModel()
+        {
+            ServerAddress = HttpHandler.BaseUrl;
+        }
         private string _serverAddress;
 
         public string ServerAddress
         {
-            get => "http://" + _serverAddress + "/api/";
+            get => _serverAddress;
             set
             {
                 if (value == _serverAddress) return;
@@ -20,8 +24,8 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public ICommand SaveCommand => new Command(
-            () => { HttpHandler.BaseUrl = "http://" + _serverAddress + "/api/"; });
+        public ICommand SaveCommand => new Command(() => 
+        { HttpHandler.BaseUrl = _serverAddress; });
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

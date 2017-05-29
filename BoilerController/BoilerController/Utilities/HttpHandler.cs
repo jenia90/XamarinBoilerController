@@ -11,7 +11,7 @@ namespace BoilerController.Utilities
     {
         //private static readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
 
-        public static string BaseUrl { get; set; } = "http://192.168.1.120:5000/api/";
+        public static string BaseUrl { get; set; } = "192.168.1.120:5000";
 
         /// <summary>
         ///     Sends formated request to the boiler server
@@ -22,6 +22,7 @@ namespace BoilerController.Utilities
             string method = "GET")
         {
             HttpResponseMessage response;
+            string requestUrl = "http://" + BaseUrl + "/api/";
 
             using (var client = new HttpClient())
             {
@@ -30,12 +31,12 @@ namespace BoilerController.Utilities
                     switch (method)
                     {
                         case "GET":
-                            response = await client.GetAsync(BaseUrl + request);
+                            response = await client.GetAsync(requestUrl + request);
                             break;
                         case "POST":
                             client.DefaultRequestHeaders.Accept.Add(
                                 new MediaTypeWithQualityHeaderValue("application/json"));
-                            response = await client.PostAsync(BaseUrl + request,
+                            response = await client.PostAsync(requestUrl + request,
                                 new StringContent(json, Encoding.UTF8, "application/json"));
                             break;
                         default:

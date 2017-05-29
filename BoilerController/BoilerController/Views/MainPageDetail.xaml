@@ -4,10 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:BoilerController.Common.Converters;assembly=BoilerController.Common"
              x:Class="BoilerController.Views.MainPageDetail" Title="Boiler Controller">
-    
-    <ContentPage.Resources>
-        <converters:StatusStringConverter x:Key="StatusStringConverter" TrueText="On" FalseText="Off" />
-    </ContentPage.Resources>
 
     <Grid>
 
@@ -26,12 +22,18 @@
 
         <StackLayout Grid.ColumnSpan="3" Grid.Row="0" Orientation="Horizontal" HorizontalOptions="Center">
             <Label VerticalOptions="Center" Text="Current Status: " />
-            <Label VerticalOptions="Center"
-                   Text="{Binding IsToggled, Converter={StaticResource StatusStringConverter}}"
-                   TextColor="{Binding StatColor}" />
+            <Label VerticalOptions="Center" TextColor="{Binding StatColor}">
+                <Label.Text>
+                    <Binding Path="IsToggled">
+                        <Binding.Converter>
+                            <converters:StatusStringConverter TrueText="On" FalseText="Off"/>
+                        </Binding.Converter>
+                    </Binding>
+                </Label.Text>
+            </Label>
             <Button VerticalOptions="Center" Text="Get Status" Command="{Binding GetStatusCommand}" />
         </StackLayout>
-        <Switch Grid.Row="3" Grid.ColumnSpan="3" HorizontalOptions="Center" IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />
+        <Switch Grid.Row="3" Grid.ColumnSpan="3"  Grid.Column="0" HorizontalOptions="Center" IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />
         
     
         <!--<Button Grid.Column="1"  Grid.RowSpan="2" Grid.Row="1"  
