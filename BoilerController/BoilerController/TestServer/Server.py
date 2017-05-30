@@ -54,7 +54,7 @@ def update_jobs_from_db():
 
         add_scheduled_job(job[4], start, end, job[5])
         if end > start:
-                set_state('1')
+            set_state('1')
 
 
 @app.route('/api/remove')
@@ -72,8 +72,9 @@ def delete_item():
         curs.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE "
                      "NAME='schedule';")
         db.commit()
-    scheduler.remove_job(job_id=start)
-    scheduler.remove_job(job_id=end)
+
+    scheduler.remove_job(job_id=start + ':00')
+    scheduler.remove_job(job_id=end + ':00')
 
     start = datetime.strptime(start, "%Y-%m-%d %H:%M")
     end = datetime.strptime(end, "%Y-%m-%d %H:%M")
@@ -116,7 +117,7 @@ def set_time():
             print(e)
             return 'BAD', 500
     else:
-        return'BAD', 500
+        return 'BAD', 500
     return 'OK', 200
 
 
@@ -133,7 +134,7 @@ def add_cron_job():
         curs = db.cursor()
 
         try:
-            curs.execute("INSERT INTO schedule (dev, turnoff, turnon, type, "
+            curs.execute("INSERT INTO schedule (dev,  turnon, turnoff, type, "
                          "daysofweek) VALUES (?,?,?,?,?);",
                          (pin, start, end, sched_type, days))
             db.commit()
@@ -162,7 +163,9 @@ def get_times():
     return json.dumps([{'ID'   : q[0],
                         'pin'  : q[1],
                         'start': q[3],
-                        'end'  : q[2]}
+                        'end'  : q[2],
+                        'type' : q[4],
+                        'days' : q[5]}
                        for q in query])
 
 
