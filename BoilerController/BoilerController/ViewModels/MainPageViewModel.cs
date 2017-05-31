@@ -24,6 +24,7 @@ namespace BoilerController.ViewModels
         private Page _detail;
         private bool _isToggled;
         private bool _isConnectedToServer;
+        private string _timeLeft = "00:00:00";
 
         #endregion
 
@@ -39,13 +40,13 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public string Status
+        public string TimeLeft
         {
-            get => _status;
-            private set
+            get => _timeLeft;
+            set
             {
-                _status = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Status"));
+                _timeLeft = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TimeLeft"));
             }
         }
 

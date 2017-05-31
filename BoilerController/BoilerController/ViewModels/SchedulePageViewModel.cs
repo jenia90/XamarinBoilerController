@@ -191,7 +191,8 @@ namespace BoilerController.ViewModels
             {
                 var response = await HttpHandler.HttpRequestTask("gettimes");
                 var job = await response.Content.ReadAsStringAsync();
-                Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
+                var jJobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
+                Jobs = jJobs;
 
                 IsRefreshing = false;
             }

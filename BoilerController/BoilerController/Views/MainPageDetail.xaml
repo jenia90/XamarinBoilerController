@@ -26,23 +26,21 @@
                 <Label.Text>
                     <Binding Path="IsToggled">
                         <Binding.Converter>
-                            <converters:StatusStringConverter TrueText="On" FalseText="Off"/>
+                            <converters:StatusStringConverter TrueText="On" FalseText="Off" />
                         </Binding.Converter>
                     </Binding>
                 </Label.Text>
             </Label>
             <Button VerticalOptions="Center" Text="Get Status" Command="{Binding GetStatusCommand}" />
         </StackLayout>
-        <Switch Grid.Row="3" Grid.ColumnSpan="3"  Grid.Column="0" HorizontalOptions="Center" IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />
-        
-    
-        <!--<Button Grid.Column="1"  Grid.RowSpan="2" Grid.Row="1"  
-                Text="Switch Boiler" 
-                Command="{Binding SwitchCommand}" 
-                BorderRadius="15" 
-                BackgroundColor="{Binding StatColor}"/>-->
-        
-    
+        <Label IsVisible="{Binding IsConnectedToServer}" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+               Grid.RowSpan="2" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand"
+               HorizontalOptions="CenterAndExpand" Text="{Binding Path=TimeLeft, StringFormat='Time left: {0}'}"
+               FontSize="72" />
+        <Switch Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
+                IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />
+
+
     </Grid>
 </ContentPage>
 

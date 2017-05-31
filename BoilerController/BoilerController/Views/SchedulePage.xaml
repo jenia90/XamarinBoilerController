@@ -2,66 +2,102 @@
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:BoilerController.Common.Converters;assembly=BoilerController.Common"
              x:Class="BoilerController.Views.SchedulePage" x:Name="SchedulePageClass" Title="Schedule">
     <ContentPage.Content>
-        <StackLayout Orientation="Vertical" Margin="10">
-            
-            <StackLayout Orientation="Horizontal">
-                <Label VerticalOptions="Center" Text="Start date:" />
-                <DatePicker VerticalOptions="Center" Date="{Binding OnDate, Mode=TwoWay}" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label VerticalOptions="Center" Text="Start time:" />
-                <TimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <Label VerticalOptions="Center" Text="Duration:"/>
-                <Picker VerticalOptions="Center" ItemsSource="{Binding Durations}" SelectedIndex="{Binding SelectedDuration, Mode=TwoWay}"/>
+        <ScrollView Margin="10">
+            <StackLayout Orientation="Vertical">
+                <StackLayout Orientation="Horizontal">
+                    <Label VerticalOptions="Center" Text="Start date:" />
+                    <DatePicker VerticalOptions="Center" Date="{Binding OnDate, Mode=TwoWay}" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label VerticalOptions="Center" Text="Start time:" />
+                    <TimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label VerticalOptions="Center" Text="Duration:" />
+                    <Picker VerticalOptions="Center" ItemsSource="{Binding Durations}"
+                            SelectedIndex="{Binding SelectedDuration, Mode=TwoWay}" />
+                </StackLayout>
+
+                <ListView ItemsSource="{Binding Days}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80*" />
+                                            <ColumnDefinition Width="20*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0" Text="{Binding Day}" />
+                                        <Switch Grid.Column="1" IsToggled="{Binding IsSelected, Mode=TwoWay}" />
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                    <Button Text="Set Timer" Command="{Binding SetTimerCommand}" />
+                    <Button Text="Add Cron Job" Command="{Binding SetCronCommand}" />
+                    <Button Text="Get Times" Command="{Binding GetTimesCommand}" />
+                </StackLayout>
+                <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}"
+                          IsPullToRefreshEnabled="True"
+                          IsRefreshing="{Binding IsRefreshing}"
+                          RefreshCommand="{Binding GetTimesCommand}" VerticalOptions="FillAndExpand"
+                          HasUnevenRows="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.ContextActions>
+                                    <MenuItem Text="Update" />
+                                    <!--TODO: Implement this shit!-->
+                                    <MenuItem Text="Remove"
+                                              Command="{Binding Path=BindingContext.DeleteCommand, Source={x:Reference Name=SchedulePageClass}}"
+                                              CommandParameter="{Binding Id}"
+                                              IsDestructive="True" />
+                                </ViewCell.ContextActions>
+
+                                <Grid VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Path=Pin, StringFormat='Pin: {0}'}" />
+                                    <Label Grid.Row="1" Grid.Column="0"
+                                           Text="{Binding Path=Start, StringFormat='Start: {0}'}" />
+                                    <Label Grid.Row="1" Grid.Column="1"
+                                           Text="{Binding Path=End, StringFormat='End: {0}'}" />
+                                    <Label Grid.Row="0" Grid.Column="1">
+                                        <Label.Text>
+                                            <Binding Path="DaysList" StringFormat="Days: {0}">
+                                                <Binding.Converter>
+                                                    <converters:ListToStringConverter />
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </Label.Text>
+                                    </Label>
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </StackLayout>
 
-            <ListView ItemsSource="{Binding Days}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <StackLayout Orientation="Horizontal">
-                                <Label HorizontalOptions="Start" Text="{Binding Day}"/>
-                                <Switch HorizontalOptions="End" IsToggled="{Binding IsSelected}"/>
-                            </StackLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-                <Button Text="Set Timer" Command="{Binding SetTimerCommand}" />
-                <Button Text="Add Cron Job" Command="{Binding SetCronCommand}"/>
-                <Button Text="Get Times" Command="{Binding GetTimesCommand}" />
-            </StackLayout>
-            <ListView x:Name="jobsList" ItemsSource="{Binding Jobs}"
-                      IsPullToRefreshEnabled="True"
-                      IsRefreshing="{Binding IsRefreshing}"
-                      RefreshCommand="{Binding GetTimesCommand}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.ContextActions>
-                                <MenuItem Text="Update" />
-                                <!--TODO: Implement this shit!-->
-                                <MenuItem Text="Remove"
-                                          Command="{Binding Path=BindingContext.DeleteCommand, Source={x:Reference Name=SchedulePageClass}}"
-                                          CommandParameter="{Binding Id}"
-                                          IsDestructive="True" />
-                            </ViewCell.ContextActions>
 
-                            <StackLayout Orientation="Horizontal">
-                                <Label Text="{Binding Path=Pin, StringFormat='Pin: {0}'}" />
-                                <Label Text="{Binding Path=Start, StringFormat='Start: {0}'}" />
-                                <Label Text="{Binding Path=End, StringFormat='End: {0}'}" />
-                            </StackLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

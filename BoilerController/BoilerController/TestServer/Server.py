@@ -1,15 +1,25 @@
+#!/usr/bin/python3
+
 from flask import Flask, request
 from datetime import datetime, timedelta
 import json
 import sqlite3
 import re
+import RPi.GPIO as GPIO
 from apscheduler.schedulers.background import BackgroundScheduler
 
-OnState = True  # Replace with GPIO.HIGH
-OffState = False  # Replace With GPIO.LOW
+ID_IDX = 0
+PIN_IDX = 1
+START_IDX = 3
+END_IDX = 2
+TYPE_IDX = 4
+DAYS_IDX = 5
 
-# OnState = GPIO.HIGH
-# OffState = GPIO.LOW
+OnState = GPIO.HIGH
+OffState = GPIO.LOW
+
+# OnState = True
+# OffState = False
 
 scheduler = BackgroundScheduler()
 
@@ -18,6 +28,13 @@ app = Flask(__name__)
 pins = {17: {'name': 'LED', 'state': OffState}}
 
 db = sqlite3.connect('boiler.db')
+
+
+def setup_gpio():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup([17], GPIO.OUT)
+    GPIO.output([17], GPIO.LOW)
 
 
 def add_scheduled_job(type, start, end, days=''):
@@ -53,7 +70,7 @@ def update_jobs_from_db():
         end = datetime.strptime(job[2], "%Y-%m-%d %H:%M")
 
         add_scheduled_job(job[4], start, end, job[5])
-        if end > start:
+        if end > datetime.now():
             set_state('1')
 
 
@@ -87,11 +104,10 @@ def delete_item():
 def set_state(state=None):
     if state == '1':
         pins[17]['state'] = OnState
-    elif state == '0':
+    elif state == '0' or state is None:
         pins[17]['state'] = OffState
 
-    elif state is None:
-        pins[17]['state'] = not pins[17]['state']
+    GPIO.output(17, pins[17]['state'])
 
 
 @app.route('/api/settime', methods=['POST'])
@@ -154,19 +170,28 @@ def add_cron_job():
 @app.route('/api/gettimes')
 def get_times():
     curs = db.cursor()
+    lst = []
     try:
         curs.execute("SELECT * FROM schedule")
         query = curs.fetchall()
     except:
         return 'BAD', 500
 
-    return json.dumps([{'ID'   : q[0],
-                        'pin'  : q[1],
-                        'start': q[3],
-                        'end'  : q[2],
-                        'type' : q[4],
-                        'days' : q[5]}
-                       for q in query])
+    for q in query:
+        days = q[DAYS_IDX]
+        if days is None:
+            days = []
+        elif ',' in days:
+            days = days.split(',')
+
+        lst.append({'ID'   : q[ID_IDX],
+                    'pin'  : q[PIN_IDX],
+                    'start': q[START_IDX],
+                    'end'  : q[END_IDX],
+                    'type' : q[TYPE_IDX],
+                    'days' : days})
+
+    return json.dumps(lst)
 
 
 @app.route('/api/setstate')
@@ -179,7 +204,7 @@ def set_led():
         pins[num]['state'] = OffState
     else:
         return 'BAD', 500
-    # GPIO.output(num, pins[num]['state'])
+    GPIO.output(num, pins[num]['state'])
     return 'OK', 200
 
 
@@ -197,6 +222,7 @@ def default_route():
 
 
 if __name__ == '__main__':
+    setup_gpio()
     update_jobs_from_db()
     scheduler.start()
     app.run(host='0.0.0.0')
