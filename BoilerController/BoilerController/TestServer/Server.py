@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
 from flask import Flask, request
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import sqlite3
-import re
 import RPi.GPIO as GPIO
 from apscheduler.schedulers.background import BackgroundScheduler
+from threading import Timer
 
 ID_IDX = 0
 PIN_IDX = 1
@@ -15,26 +15,68 @@ END_IDX = 2
 TYPE_IDX = 4
 DAYS_IDX = 5
 
+DATABASE = 'boiler.db'
+
 OnState = GPIO.HIGH
 OffState = GPIO.LOW
 
-# OnState = True
-# OffState = False
 
 scheduler = BackgroundScheduler()
 
 app = Flask(__name__)
+db = sqlite3.connect(DATABASE)
 
-pins = {17: {'name': 'LED', 'state': OffState}}
+pins = {17: {'name': 'LED', 'state': OffState},
+        23: {'name': 'STAT', 'state': OffState}}
 
-db = sqlite3.connect('boiler.db')
+lastStart = ""
+
+
+class RepeatedTimer(object):
+    def __init__(self, interval, function, *args, **kwargs):
+        self._timer     = None
+        self.function   = function
+        self.interval   = interval
+        self.args       = args
+        self.kwargs     = kwargs
+        self.is_running = False
+        self.start()
+
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
+
+    def start(self):
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+
+
+def update_state(pin):
+    pins[pin]['state'] = GPIO.input(pin)
 
 
 def setup_gpio():
-    GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
     GPIO.setup([17], GPIO.OUT)
+    GPIO.setup(23, GPIO.IN)
     GPIO.output([17], GPIO.LOW)
+    update_state(23)
+
+
+def start_state_timer(interval):
+    rt = RepeatedTimer(interval, update_state, 23)
+    rt.start()
+    return rt
+
+setup_gpio()
 
 
 def add_scheduled_job(type, start, end, days=''):
@@ -104,6 +146,7 @@ def delete_item():
 def set_state(state=None):
     if state == '1':
         pins[17]['state'] = OnState
+        lastStart = datetime.now()
     elif state == '0' or state is None:
         pins[17]['state'] = OffState
 
@@ -198,8 +241,10 @@ def get_times():
 def set_led():
     num = int(request.args['dev'])
     state = request.args['state']
+    global lastStart
     if state == '1':
         pins[num]['state'] = OnState
+        lastStart = str(datetime.now())
     elif state == '0':
         pins[num]['state'] = OffState
     else:
@@ -212,8 +257,8 @@ def set_led():
 def get_led():
     num = int(request.args['dev'])
     if pins[num]['state'] == OnState:
-        return 'On'
-    return 'Off'
+        return json.dumps({'state': 'On', 'on_since': lastStart})
+    return json.dumps({'state': 'Off', 'on_since': None})
 
 
 @app.route('/')
@@ -222,8 +267,9 @@ def default_route():
 
 
 if __name__ == '__main__':
-    setup_gpio()
+    rt = start_state_timer(5)
     update_jobs_from_db()
     scheduler.start()
     app.run(host='0.0.0.0')
+    rt.stop()
     db.close()

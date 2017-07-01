@@ -33,9 +33,9 @@
             </Label>
             <Button VerticalOptions="Center" Text="Get Status" Command="{Binding GetStatusCommand}" />
         </StackLayout>
-        <Label IsVisible="{Binding IsConnectedToServer}" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+        <Label IsVisible="{Binding IsToggled}" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
                Grid.RowSpan="2" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand"
-               HorizontalOptions="CenterAndExpand" Text="{Binding Path=TimeLeft, StringFormat='Time left: {0}'}"
+               HorizontalOptions="CenterAndExpand" Text="{Binding Path=OnSince, StringFormat='On Since: {0}'}"
                FontSize="72" />
         <Switch Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
                 IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Input;
 using BoilerController.Common.Utilities;
+using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
@@ -24,7 +25,7 @@ namespace BoilerController.ViewModels
         private Page _detail;
         private bool _isToggled;
         private bool _isConnectedToServer;
-        private string _timeLeft = "00:00:00";
+        private string _onSince = "00:00:00";
 
         #endregion
 
@@ -40,13 +41,13 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public string TimeLeft
+        public string OnSince
         {
-            get => _timeLeft;
+            get => _onSince;
             set
             {
-                _timeLeft = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("TimeLeft"));
+                _onSince = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OnSince"));
             }
         }
 
@@ -103,25 +104,16 @@ namespace BoilerController.ViewModels
             {
                 case true:
                     {
-                        var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=1");
-                        var content = await response.Content.ReadAsStringAsync();
-                        if (content == "OK")
-                        {
-                            StatColor = Color.Green;
-                        }
+                        await HttpHandler.HttpRequestTask("setstate?dev=17&state=1");
                     }
                     break;
                 case false:
                     {
-                        var response = await HttpHandler.HttpRequestTask("setstate?dev=17&state=0");
-                        var content = await response.Content.ReadAsStringAsync();
-                        if (content == "OK")
-                        {
-                            StatColor = Color.Red;
-                        }
+                        await HttpHandler.HttpRequestTask("setstate?dev=17&state=0");
                     }
                     break;
             }
+            UpdateProps();
         }
 
         /// <summary>
@@ -138,12 +130,19 @@ namespace BoilerController.ViewModels
                     return;
                 }
                 var content = await response.Content.ReadAsStringAsync();
-                switch(content)
+                var data = JsonConvert.DeserializeAnonymousType(content, new
+                {
+                    on_since = "",
+                    state = ""
+                });
+
+                switch(data.state)
                 {
                     case "On":
                         IsConnectedToServer = true;
                         _isToggled = true;
                         StatColor = Color.Green;
+                        OnSince = DateTime.Parse(data.on_since).ToLongTimeString();
                         break;
                     case "Off":
                         IsConnectedToServer = true;
