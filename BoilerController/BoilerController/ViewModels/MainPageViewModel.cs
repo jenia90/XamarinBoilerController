@@ -20,12 +20,11 @@ namespace BoilerController.ViewModels
 
         #region Fields
 
-        private string _status = "Status unavailable";
         private Color _statColor;
         private Page _detail;
         private bool _isToggled;
         private bool _isConnectedToServer;
-        private string _onSince = "00:00:00";
+        private string _onSince = "";
 
         #endregion
 
@@ -142,23 +141,25 @@ namespace BoilerController.ViewModels
                         IsConnectedToServer = true;
                         _isToggled = true;
                         StatColor = Color.Green;
-                        OnSince = DateTime.Parse(data.on_since).ToLongTimeString();
+                        OnSince = DateTime.Parse(data.on_since).ToString("HH:mm");
                         break;
                     case "Off":
                         IsConnectedToServer = true;
                         _isToggled = false;
                         StatColor = Color.Red;
+                        OnSince = "00:00:00";
                         break;
                     default:
                         IsConnectedToServer = false;
                         _isToggled = false;
+                        StatColor = Color.DarkGray;
                         break;
 
                 }
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsToggled"));
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 HttpHandler.DisplayMessage("Server Unreachable", "Unable to connect to server");
             }

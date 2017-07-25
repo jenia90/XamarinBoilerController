@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -56,7 +57,15 @@ namespace BoilerController.Common.Utilities
 
         public static async void DisplayMessage(string title, string message, string cancel = "OK")
         {
-            await Application.Current.MainPage.DisplayAlert(title, message, cancel);
+            try
+            {
+
+                await Application.Current.MainPage.DisplayAlert(title, message, cancel);
+            }
+            catch (Exception e)
+            {
+                
+            }
         }
     }
 }

@@ -8,6 +8,9 @@ import RPi.GPIO as GPIO
 from apscheduler.schedulers.background import BackgroundScheduler
 from threading import Timer
 
+ON_STATE = '1'
+OFF_STATE = '0'
+
 ID_IDX = 0
 PIN_IDX = 1
 START_IDX = 3
@@ -15,11 +18,10 @@ END_IDX = 2
 TYPE_IDX = 4
 DAYS_IDX = 5
 
-DATABASE = 'boiler.db'
+DATABASE = '/home/pi/BoilerServer/boiler.db'
 
 OnState = GPIO.HIGH
 OffState = GPIO.LOW
-
 
 scheduler = BackgroundScheduler()
 
@@ -34,11 +36,11 @@ lastStart = ""
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
-        self._timer     = None
-        self.function   = function
-        self.interval   = interval
-        self.args       = args
-        self.kwargs     = kwargs
+        self._timer = None
+        self.function = function
+        self.interval = interval
+        self.args = args
+        self.kwargs = kwargs
         self.is_running = False
         self.start()
 
@@ -76,6 +78,7 @@ def start_state_timer(interval):
     rt.start()
     return rt
 
+
 setup_gpio()
 
 
@@ -85,70 +88,87 @@ def add_scheduled_job(type, start, end, days=''):
             scheduler.add_job(set_state, 'date', id=str(start),
                               run_date=start,
                               misfire_grace_time=60,
-                              args=['1'])
+                              args=[ON_STATE])
         # add future end
         scheduler.add_job(set_state, 'date', id=str(end),
                           run_date=end,
-                          args=['0'],
+                          args=[OFF_STATE],
                           misfire_grace_time=60)
     elif type == 'cron':
         scheduler.add_job(set_state, 'cron', id=str(start),
                           hour=start.hour, minute=start.minute,
                           day_of_week=days,
                           misfire_grace_time=60,
-                          args=['1'])
+                          args=[ON_STATE])
         scheduler.add_job(set_state, 'cron', id=str(end),
                           hour=end.hour, minute=end.minute,
                           day_of_week=days,
-                          args=['0'],
+                          args=[OFF_STATE],
                           misfire_grace_time=60)
 
 
 def update_jobs_from_db():
-    c = db.cursor()
-    c.execute("SELECT * FROM schedule")
-    for job in c.fetchall():
-        start = datetime.strptime(job[3], "%Y-%m-%d %H:%M")
-        end = datetime.strptime(job[2], "%Y-%m-%d %H:%M")
+    cur_hour = datetime.now().hour
+    cur_min = datetime.now().minute
+    try:
+        c = db.cursor()
+        c.execute("SELECT * FROM schedule")
+        for job in c.fetchall():
+            start = datetime.strptime(job[START_IDX], "%Y-%m-%d %H:%M")
+            end = datetime.strptime(job[END_IDX], "%Y-%m-%d %H:%M")
 
-        add_scheduled_job(job[4], start, end, job[5])
-        if end > datetime.now():
-            set_state('1')
+            add_scheduled_job(job[TYPE_IDX], start, end, job[DAYS_IDX])
+            if end.hour >= cur_hour >= start.hour and \
+                                    end.minute > cur_min >= start.minute:
+                set_state(ON_STATE)
+    except sqlite3.DatabaseError as e:
+        print(e)
 
 
 @app.route('/api/remove')
 def delete_item():
     id = request.args['id']
+    if id is None:
+        return 'BAD', 500
 
-    curs = db.cursor()
-    curs.execute("SELECT * FROM schedule WHERE ID=" + str(id))
-    _, _, end, start, _, _ = curs.fetchone()
-    curs.execute(
-            "DELETE FROM schedule WHERE ID=?;", (id,))
-    db.commit()
-    curs.execute("SELECT * FROM schedule")
-    if len(curs.fetchall()) == 0:
-        curs.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE "
-                     "NAME='schedule';")
+    try:
+        curs = db.cursor()
+        curs.execute("SELECT * FROM schedule WHERE ID=" + str(id))
+        _, _, end, start, _, _ = curs.fetchone()
+        curs.execute(
+                "DELETE FROM schedule WHERE ID=?;", (id,))
         db.commit()
+        curs.execute("SELECT * FROM schedule")
+        # Check if the table is empty, in which case we reset the ID field.
+        if len(curs.fetchall()) == 0:
+            curs.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE "
+                         "NAME='schedule';")
+            db.commit()
+    except sqlite3.DatabaseError as e:
+        print(e)
 
-    scheduler.remove_job(job_id=start + ':00')
-    scheduler.remove_job(job_id=end + ':00')
+    try:
+        scheduler.remove_job(job_id=start + ':00')
+        scheduler.remove_job(job_id=end + ':00')
+    except Exception as e:
+        print(e)
 
     start = datetime.strptime(start, "%Y-%m-%d %H:%M")
     end = datetime.strptime(end, "%Y-%m-%d %H:%M")
-    if end > datetime.now() > start:
-        set_state('0')
+    if end > datetime.now() > start and pins[17]['state'] == OnState:
+        set_state(OFF_STATE)
 
     return 'OK', 200
 
 
 def set_state(state=None):
-    if state == '1':
+    global lastStart
+    if state == ON_STATE:
         pins[17]['state'] = OnState
-        lastStart = datetime.now()
-    elif state == '0' or state is None:
+        lastStart = str(datetime.now())
+    elif state == OFF_STATE or state is None:
         pins[17]['state'] = OffState
+        lastStart = ''
 
     GPIO.output(17, pins[17]['state'])
 
@@ -156,6 +176,9 @@ def set_state(state=None):
 @app.route('/api/settime', methods=['POST'])
 def set_time():
     j = request.json
+    if len(j) < 4:
+        return 'BAD', 500
+
     pin = j['pin']
     start = j['start']
     end = j['end']
@@ -168,9 +191,9 @@ def set_time():
                          "VALUES (?,?,?,?);",
                          (pin, start, end, sched_type))
             db.commit()
-            jobstart = datetime.strptime(start, "%Y-%m-%d %H:%M")
-            jobend = datetime.strptime(end, "%Y-%m-%d %H:%M")
-            add_scheduled_job(sched_type, jobstart, jobend)
+            start = datetime.strptime(start, "%Y-%m-%d %H:%M")
+            end = datetime.strptime(end, "%Y-%m-%d %H:%M")
+            add_scheduled_job(sched_type, start, end)
         except Exception as e:
             db.commit()
             print(e)
@@ -183,6 +206,9 @@ def set_time():
 @app.route('/api/addcron', methods=['POST'])
 def add_cron_job():
     j = request.json
+    if len(j) < 5:
+        return 'BAD', 500
+
     pin = j['pin']
     start = j['start']
     end = j['end']
@@ -217,7 +243,7 @@ def get_times():
     try:
         curs.execute("SELECT * FROM schedule")
         query = curs.fetchall()
-    except:
+    except sqlite3.DatabaseError:
         return 'BAD', 500
 
     for q in query:
@@ -241,12 +267,15 @@ def get_times():
 def set_led():
     num = int(request.args['dev'])
     state = request.args['state']
+
     global lastStart
-    if state == '1':
+
+    if state == ON_STATE:
         pins[num]['state'] = OnState
         lastStart = str(datetime.now())
-    elif state == '0':
+    elif state == OFF_STATE:
         pins[num]['state'] = OffState
+        lastStart = ''
     else:
         return 'BAD', 500
     GPIO.output(num, pins[num]['state'])
@@ -256,6 +285,9 @@ def set_led():
 @app.route('/api/getstate')
 def get_led():
     num = int(request.args['dev'])
+    if num is None:
+        return 'BAD', 500
+
     if pins[num]['state'] == OnState:
         return json.dumps({'state': 'On', 'on_since': lastStart})
     return json.dumps({'state': 'Off', 'on_since': None})
