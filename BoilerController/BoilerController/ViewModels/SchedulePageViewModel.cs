@@ -206,7 +206,7 @@ namespace BoilerController.ViewModels
         {
             try
             {
-                var response = await HttpHandler.HttpRequestTask("remove?id=" + id);
+                var response = await HttpHandler.HttpRequestTask("remove?id=" + id, method: "DELETE");
                 if (await response.Content.ReadAsStringAsync() == "OK")
                     GetTimes();
             }

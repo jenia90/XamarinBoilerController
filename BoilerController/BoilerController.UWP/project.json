@@ -3,7 +3,8 @@
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.3.3",
     "Newtonsoft.Json": "10.0.2",
     "System.Net.Http": "4.3.2",
-    "Xamarin.Forms": "2.3.4.247"
+    "Xamarin.Forms": "2.3.4.247",
+    "XLabs.Forms": "2.3.0-pre05"
   },
   "frameworks": {
     "uap10.0": {}

@@ -3,11 +3,17 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BoilerController.Views.SettingsPage" Title="Settings">
-    <StackLayout Margin="10">
-        <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-            <Label VerticalOptions="Center" Text="Server Address" />
-            <Entry HorizontalOptions="Center" Placeholder="Server Address" Text="{Binding ServerAddress, Mode=TwoWay}" />
-        </StackLayout>
-        <Button Text="Save" HorizontalOptions="Center" Command="{Binding SaveCommand}"/>
-    </StackLayout>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Save" Command="{Binding SaveCommand}" Icon="Assets/SaveIcon.png"/>
+    </ContentPage.ToolbarItems>
+    
+    
+    <TableView Intent="Settings">
+        <TableRoot>
+            <TableSection Title="Server Address">
+                <EntryCell Label="Address" Placeholder="IP or Hostname"   Text="{Binding ServerAddress, Mode=TwoWay}" LabelColor="Black"/>
+                <EntryCell Keyboard="Numeric" Label="Port" Placeholder="Server Port" Text="{Binding ServerPort, Mode=TwoWay}" LabelColor="Black"/>
+            </TableSection>
+        </TableRoot>
+    </TableView>
 </ContentPage>

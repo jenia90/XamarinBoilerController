@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from flask import Flask, request
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import sqlite3
 import RPi.GPIO as GPIO
@@ -18,7 +18,12 @@ END_IDX = 2
 TYPE_IDX = 4
 DAYS_IDX = 5
 
-DATABASE = '/home/pi/BoilerServer/boiler.db'
+# production DB location
+# DATABASE = '/home/pi/BoilerServer/boiler.db'
+
+# dev server db location
+DATABASE = 'boiler.db'
+API_KEY = 'Basic LC9BhYqKWXAlduiwu0fUgr8ZwW6GSbRUz1pOMWh2+NM='
 
 OnState = GPIO.HIGH
 OffState = GPIO.LOW
@@ -28,58 +33,38 @@ scheduler = BackgroundScheduler()
 app = Flask(__name__)
 db = sqlite3.connect(DATABASE)
 
-pins = {17: {'name': 'LED', 'state': OffState},
-        23: {'name': 'STAT', 'state': OffState}}
+pins = {17: {'name': 'BOILER', 'state': OffState}}
 
 lastStart = ""
+nextEnd = ''
 
 
-class RepeatedTimer(object):
-    def __init__(self, interval, function, *args, **kwargs):
-        self._timer = None
-        self.function = function
-        self.interval = interval
-        self.args = args
-        self.kwargs = kwargs
-        self.is_running = False
-        self.start()
+def manual_override(channel):
+    start = datetime.now()
+    end = datetime.now() + timedelta(hours=2)
 
-    def _run(self):
-        self.is_running = False
-        self.start()
-        self.function(*self.args, **self.kwargs)
+    global lastStart
+    global nextEnd
+    if pins[17]['state'] == OffState:
+        pins[17]['state'] = OnState
+        add_scheduled_job('datetime', start, end)
+        nextEnd = str(end)
+        lastStart = str(datetime.now())
+    elif pins[17]['state'] == OnState:
+        pins[17]['state'] = OffState
+        scheduler.remove_job(nextEnd)
 
-    def start(self):
-        if not self.is_running:
-            self._timer = Timer(self.interval, self._run)
-            self._timer.start()
-            self.is_running = True
-
-    def stop(self):
-        self._timer.cancel()
-        self.is_running = False
-
-
-def update_state(pin):
-    pins[pin]['state'] = GPIO.input(pin)
+    GPIO.output(17, pins[17]['state'])
 
 
 def setup_gpio():
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
-    GPIO.setup([17], GPIO.OUT)
-    GPIO.setup(23, GPIO.IN)
-    GPIO.output([17], GPIO.LOW)
-    update_state(23)
-
-
-def start_state_timer(interval):
-    rt = RepeatedTimer(interval, update_state, 23)
-    rt.start()
-    return rt
-
-
-setup_gpio()
+    GPIO.setup(17, GPIO.OUT)
+    GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.output(17, GPIO.LOW)
+    GPIO.add_event_detect(23, GPIO.FALLING,
+                          callback=manual_override, bouncetime=300)
 
 
 def add_scheduled_job(type, start, end, days=''):
@@ -125,8 +110,11 @@ def update_jobs_from_db():
         print(e)
 
 
-@app.route('/api/remove')
+@app.route('/api/remove', methods=['DELETE'])
 def delete_item():
+    key = request.headers['authorization']
+    if key != API_KEY:
+        return 'Unauthorized', 401
     id = request.args['id']
     if id is None:
         return 'BAD', 500
@@ -162,8 +150,14 @@ def delete_item():
 
 
 def set_state(state=None):
+    """
+    Sets desired state
+    :param state: desired state string
+    :return:
+    """
     global lastStart
     if state == ON_STATE:
+
         pins[17]['state'] = OnState
         lastStart = str(datetime.now())
     elif state == OFF_STATE or state is None:
@@ -175,10 +169,16 @@ def set_state(state=None):
 
 @app.route('/api/settime', methods=['POST'])
 def set_time():
+    """
+    Adds one-time scheduled job
+    :return:
+    """
     j = request.json
-    if len(j) < 4:
+    if len(j) < 5:
         return 'BAD', 500
-
+    key = request.headers['authorization']
+    if key != API_KEY:
+        return 'Unauthorized', 401
     pin = j['pin']
     start = j['start']
     end = j['end']
@@ -205,9 +205,16 @@ def set_time():
 
 @app.route('/api/addcron', methods=['POST'])
 def add_cron_job():
+    """
+    Adds recurring scheduled job
+    """
     j = request.json
-    if len(j) < 5:
+    if len(j) < 6:
         return 'BAD', 500
+
+    key = request.headers['authorization']
+    if key != API_KEY:
+        return 'Unauthorized', 401
 
     pin = j['pin']
     start = j['start']
@@ -238,6 +245,12 @@ def add_cron_job():
 
 @app.route('/api/gettimes')
 def get_times():
+    """
+    Replies a list of scheduled jobs
+    """
+    key = request.headers['authorization']
+    if key != API_KEY:
+        return 'Unauthorized', 401
     curs = db.cursor()
     lst = []
     try:
@@ -264,17 +277,31 @@ def get_times():
 
 
 @app.route('/api/setstate')
-def set_led():
+def remote_set_state():
+    """
+    Sets working state
+    """
+    key = request.headers['authorization']
+    if key != API_KEY:
+        return 'Unauthorized', 401
+
     num = int(request.args['dev'])
     state = request.args['state']
 
+    start = datetime.now()
+    end = datetime.now() + timedelta(hours=2)
+
     global lastStart
+    global nextEnd
 
     if state == ON_STATE:
         pins[num]['state'] = OnState
+        add_scheduled_job('datetime', start, end)
+        nextEnd = str(end)
         lastStart = str(datetime.now())
     elif state == OFF_STATE:
         pins[num]['state'] = OffState
+        scheduler.remove_job(nextEnd)
         lastStart = ''
     else:
         return 'BAD', 500
@@ -283,7 +310,15 @@ def set_led():
 
 
 @app.route('/api/getstate')
-def get_led():
+def remote_get_state():
+    """
+    Replies with the current working state
+    :return: json string with the state.
+    """
+    key = request.headers['authorization']
+    if key != API_KEY:
+        return 'Unauthorized', 401
+
     num = int(request.args['dev'])
     if num is None:
         return 'BAD', 500
@@ -293,15 +328,10 @@ def get_led():
     return json.dumps({'state': 'Off', 'on_since': None})
 
 
-@app.route('/')
-def default_route():
-    return 'Please use correct commands.'
-
-
 if __name__ == '__main__':
-    rt = start_state_timer(5)
+    setup_gpio()
     update_jobs_from_db()
     scheduler.start()
     app.run(host='0.0.0.0')
-    rt.stop()
+    GPIO.cleanup()
     db.close()

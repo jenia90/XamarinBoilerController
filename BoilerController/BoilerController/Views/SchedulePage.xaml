@@ -3,8 +3,8 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:BoilerController.Common.Converters;assembly=BoilerController.Common"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
              x:Class="BoilerController.Views.SchedulePage" x:Name="SchedulePageClass" Title="Schedule">
-             <!--xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"-->
     <ContentPage.Content>
         <ScrollView Margin="10">
             <StackLayout Orientation="Vertical">
@@ -26,18 +26,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <ViewCell.View>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80*" />
-                                            <ColumnDefinition Width="20*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Label Grid.Column="0" Text="{Binding Day}" />
-                                        <Switch Grid.Column="1" IsToggled="{Binding IsSelected, Mode=TwoWay}" />
-                                    </Grid>
-                                    <!--<controls:CheckBox DefaultText="{Binding Day}" Checked="{Binding IsSelected, Mode=TwoWay}"/>-->
-                                </ViewCell.View>
+                                <controls:CheckBox DefaultText="{Binding Day}" Checked="{Binding IsSelected, Mode=TwoWay}"/>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>

@@ -9,9 +9,12 @@ namespace BoilerController.ViewModels
     {
         public SettingsPageViewModel()
         {
-            ServerAddress = HttpHandler.BaseUrl;
+            var baseUrl = HttpHandler.BaseUrl.Split(':');
+            ServerAddress = baseUrl[0];
+            ServerPort = baseUrl[1];
         }
         private string _serverAddress;
+        private string _serverPort;
 
         public string ServerAddress
         {
@@ -24,8 +27,20 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public ICommand SaveCommand => new Command(() => 
-        { HttpHandler.BaseUrl = _serverAddress; });
+        public string ServerPort
+        {
+            get => _serverPort;
+            set
+            {
+                _serverPort = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ServerPort"));
+            }
+        }
+
+        public ICommand SaveCommand => new Command( () =>
+        {
+            HttpHandler.BaseUrl = _serverAddress + ":" + _serverPort;
+        });
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

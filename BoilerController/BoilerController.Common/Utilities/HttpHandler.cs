@@ -11,6 +11,7 @@ namespace BoilerController.Common.Utilities
     public class HttpHandler
     {
         //private static readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
+        private static string _apiKey = "LC9BhYqKWXAlduiwu0fUgr8ZwW6GSbRUz1pOMWh2+NM=";
 
         public static string BaseUrl { get; set; } = "192.168.1.178:5000";
 
@@ -29,16 +30,20 @@ namespace BoilerController.Common.Utilities
             {
                 try
                 {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _apiKey);
                     switch (method)
                     {
                         case "GET":
-                            response = await client.GetAsync(requestUrl + request);
+                            response = await client.GetAsync(new Uri(requestUrl + request));
                             break;
                         case "POST":
                             client.DefaultRequestHeaders.Accept.Add(
                                 new MediaTypeWithQualityHeaderValue("application/json"));
-                            response = await client.PostAsync(requestUrl + request,
+                            response = await client.PostAsync(new Uri(requestUrl + request),
                                 new StringContent(json, Encoding.UTF8, "application/json"));
+                            break;
+                        case "DELETE":
+                            response = await client.DeleteAsync(new Uri(requestUrl + request));
                             break;
                         default:
                             response = new HttpResponseMessage(HttpStatusCode.BadRequest);
@@ -59,13 +64,10 @@ namespace BoilerController.Common.Utilities
         {
             try
             {
-
                 await Application.Current.MainPage.DisplayAlert(title, message, cancel);
             }
             catch (Exception e)
-            {
-                
-            }
+            {}
         }
     }
 }
