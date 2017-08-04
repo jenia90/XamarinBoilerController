@@ -67,7 +67,7 @@
                                     </Grid.RowDefinitions>
 
                                     <Label Grid.Row="0" Grid.Column="0"
-                                           Text="{Binding Path=Pin, StringFormat='Pin: {0}'}" />
+                                           Text="{Binding Path=DeviceName, StringFormat='Device: {0}'}" />
                                     <Label Grid.Row="1" Grid.Column="0"
                                            Text="{Binding Path=Start, StringFormat='Start: {0}'}" />
                                     <Label Grid.Row="1" Grid.Column="1"

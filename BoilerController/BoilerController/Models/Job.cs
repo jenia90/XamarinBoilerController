@@ -15,6 +15,7 @@ namespace BoilerController.Models
         private int _id;
         private string _type;
         private IEnumerable<string> _daysList;
+        private string _deviceName;
 
         [JsonProperty("id")]
         public int Id
@@ -48,6 +49,18 @@ namespace BoilerController.Models
                 if (value == _pin) return;
                 _pin = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Pin"));
+            }
+        }
+
+        [JsonProperty("dev")]
+        public string DeviceName
+        {
+            get => _deviceName;
+            set
+            {
+                if(value == _deviceName) return;
+                _deviceName = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DeviceName"));
             }
         }
 

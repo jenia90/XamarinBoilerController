@@ -6,7 +6,6 @@ import json
 import sqlite3
 import RPi.GPIO as GPIO
 from apscheduler.schedulers.background import BackgroundScheduler
-from threading import Timer
 
 ON_STATE = '1'
 OFF_STATE = '0'
@@ -19,10 +18,10 @@ TYPE_IDX = 4
 DAYS_IDX = 5
 
 # production DB location
-# DATABASE = '/home/pi/BoilerServer/boiler.db'
+DATABASE = '/home/pi/BoilerServer/boiler.db'
 
 # dev server db location
-DATABASE = 'boiler.db'
+# DATABASE = 'boiler.db'
 API_KEY = 'Basic LC9BhYqKWXAlduiwu0fUgr8ZwW6GSbRUz1pOMWh2+NM='
 
 OnState = GPIO.HIGH
@@ -33,7 +32,7 @@ scheduler = BackgroundScheduler()
 app = Flask(__name__)
 db = sqlite3.connect(DATABASE)
 
-pins = {17: {'name': 'BOILER', 'state': OffState}}
+pins = {17: {'name': 'Boiler', 'state': OffState}}
 
 lastStart = ""
 nextEnd = ''
@@ -92,7 +91,22 @@ def add_scheduled_job(type, start, end, days=''):
                           misfire_grace_time=60)
 
 
-def update_jobs_from_db():
+def remove_job_from_db(id):
+    try:
+        curs = db.cursor()
+        curs.execute("DELETE FROM schedule WHERE ID=?;", (id,))
+        db.commit()
+        curs.execute("SELECT * FROM schedule")
+        # Check if the table is empty, in which case we reset the ID field.
+        if len(curs.fetchall()) == 0:
+            curs.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE "
+                         "NAME='schedule';")
+            db.commit()
+    except sqlite3.DatabaseError as e:
+        print(e)
+
+
+def get_jobs_from_db():
     cur_hour = datetime.now().hour
     cur_min = datetime.now().minute
     try:
@@ -101,6 +115,9 @@ def update_jobs_from_db():
         for job in c.fetchall():
             start = datetime.strptime(job[START_IDX], "%Y-%m-%d %H:%M")
             end = datetime.strptime(job[END_IDX], "%Y-%m-%d %H:%M")
+            if end <= datetime.now():
+                remove_job_from_db(job[ID_IDX])
+                continue
 
             add_scheduled_job(job[TYPE_IDX], start, end, job[DAYS_IDX])
             if end.hour >= cur_hour >= start.hour and \
@@ -110,11 +127,16 @@ def update_jobs_from_db():
         print(e)
 
 
+
+
+
+
 @app.route('/api/remove', methods=['DELETE'])
 def delete_item():
     key = request.headers['authorization']
     if key != API_KEY:
         return 'Unauthorized', 401
+
     id = request.args['id']
     if id is None:
         return 'BAD', 500
@@ -123,15 +145,7 @@ def delete_item():
         curs = db.cursor()
         curs.execute("SELECT * FROM schedule WHERE ID=" + str(id))
         _, _, end, start, _, _ = curs.fetchone()
-        curs.execute(
-                "DELETE FROM schedule WHERE ID=?;", (id,))
-        db.commit()
-        curs.execute("SELECT * FROM schedule")
-        # Check if the table is empty, in which case we reset the ID field.
-        if len(curs.fetchall()) == 0:
-            curs.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE "
-                         "NAME='schedule';")
-            db.commit()
+        remove_job_from_db(id)
     except sqlite3.DatabaseError as e:
         print(e)
 
@@ -174,7 +188,7 @@ def set_time():
     :return:
     """
     j = request.json
-    if len(j) < 5:
+    if len(j) < 4:
         return 'BAD', 500
     key = request.headers['authorization']
     if key != API_KEY:
@@ -209,7 +223,7 @@ def add_cron_job():
     Adds recurring scheduled job
     """
     j = request.json
-    if len(j) < 6:
+    if len(j) < 5:
         return 'BAD', 500
 
     key = request.headers['authorization']
@@ -252,13 +266,13 @@ def get_times():
     if key != API_KEY:
         return 'Unauthorized', 401
     curs = db.cursor()
-    lst = []
     try:
         curs.execute("SELECT * FROM schedule")
         query = curs.fetchall()
     except sqlite3.DatabaseError:
         return 'BAD', 500
 
+    lst = []
     for q in query:
         days = q[DAYS_IDX]
         if days is None:
@@ -268,11 +282,12 @@ def get_times():
 
         lst.append({'ID'   : q[ID_IDX],
                     'pin'  : q[PIN_IDX],
+                    'dev'  : pins[q[PIN_IDX]]['name'],
                     'start': q[START_IDX],
                     'end'  : q[END_IDX],
                     'type' : q[TYPE_IDX],
                     'days' : days})
-
+    print(lst)
     return json.dumps(lst)
 
 
@@ -328,10 +343,15 @@ def remote_get_state():
     return json.dumps({'state': 'Off', 'on_since': None})
 
 
-if __name__ == '__main__':
+def run_server():
     setup_gpio()
-    update_jobs_from_db()
+    get_jobs_from_db()
     scheduler.start()
     app.run(host='0.0.0.0')
+    set_state(OFF_STATE)
     GPIO.cleanup()
     db.close()
+
+
+if __name__ == '__main__':
+    run_server()
