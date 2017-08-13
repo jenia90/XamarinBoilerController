@@ -10,11 +10,11 @@
             <StackLayout Orientation="Vertical">
                 <StackLayout Orientation="Horizontal">
                     <Label VerticalOptions="Center" Text="Start date:" />
-                    <DatePicker VerticalOptions="Center" Date="{Binding OnDate, Mode=TwoWay}" />
+                    <controls:ExtendedDatePicker VerticalOptions="Center" Date="{Binding OnDate, Mode=TwoWay}" />
                 </StackLayout>
                 <StackLayout Orientation="Horizontal">
                     <Label VerticalOptions="Center" Text="Start time:" />
-                    <TimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
+                    <controls:ExtendedTimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
                 </StackLayout>
                 <StackLayout Orientation="Horizontal">
                     <Label VerticalOptions="Center" Text="Duration:" />
@@ -22,15 +22,25 @@
                             SelectedIndex="{Binding SelectedDuration, Mode=TwoWay}" />
                 </StackLayout>
 
-                <ListView ItemsSource="{Binding Days}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <ViewCell>
-                                <controls:CheckBox DefaultText="{Binding Day}" Checked="{Binding IsSelected, Mode=TwoWay}"/>
-                            </ViewCell>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <controls:CheckBox Grid.Column="0" DefaultText="{Binding Days[0].Day}" Checked="{Binding Days[0].IsSelected, Mode=TwoWay}"/>
+                    <controls:CheckBox Grid.Column="1" DefaultText="{Binding Days[1].Day}" Checked="{Binding Days[1].IsSelected, Mode=TwoWay}"/>
+                    <controls:CheckBox Grid.Column="2" DefaultText="{Binding Days[2].Day}" Checked="{Binding Days[2].IsSelected, Mode=TwoWay}"/>
+                    <controls:CheckBox Grid.Column="3" DefaultText="{Binding Days[3].Day}" Checked="{Binding Days[3].IsSelected, Mode=TwoWay}"/>
+                    <controls:CheckBox Grid.Column="4" DefaultText="{Binding Days[4].Day}" Checked="{Binding Days[4].IsSelected, Mode=TwoWay}"/>
+                    <controls:CheckBox Grid.Column="5" DefaultText="{Binding Days[5].Day}" Checked="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
+                    <controls:CheckBox Grid.Column="6" DefaultText="{Binding Days[6].Day}" Checked="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
+                </Grid>
 
                 <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
                     <Button Text="Set Timer" Command="{Binding SetTimerCommand}" />
@@ -46,8 +56,8 @@
                         <DataTemplate>
                             <ViewCell>
                                 <ViewCell.ContextActions>
-                                    <MenuItem Text="Update" />
                                     <!--TODO: Implement this shit!-->
+                                    <MenuItem Text="Update" />
                                     <MenuItem Text="Remove"
                                               Command="{Binding Path=BindingContext.DeleteCommand, Source={x:Reference Name=SchedulePageClass}}"
                                               CommandParameter="{Binding Id}"
@@ -87,8 +97,6 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </StackLayout>
-
-
         </ScrollView>
     </ContentPage.Content>
 </ContentPage>

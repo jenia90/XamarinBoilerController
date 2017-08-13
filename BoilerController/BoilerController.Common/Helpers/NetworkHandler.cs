@@ -6,11 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
-namespace BoilerController.Common.Utilities
+namespace BoilerController.Common.Helpers
 {
-    public class HttpHandler
+    public class NetworkHandler
     {
-        //private static readonly string _baseurl = "http://192.168.1.178:5000/api/"; // uncomment for production
         private static string _apiKey = "LC9BhYqKWXAlduiwu0fUgr8ZwW6GSbRUz1pOMWh2+NM=";
 
         public static string BaseUrl { get; set; } = "192.168.1.178:5000";
@@ -30,7 +29,10 @@ namespace BoilerController.Common.Utilities
             {
                 try
                 {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _apiKey);
+                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _apiKey);
+                    client.DefaultRequestHeaders.Authorization = 
+                        new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.Username + ":" + Settings.Password)));
+
                     switch (method)
                     {
                         case "GET":

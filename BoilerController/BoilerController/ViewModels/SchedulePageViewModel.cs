@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-using BoilerController.Common.Utilities;
+using BoilerController.Common.Helpers;
 using BoilerController.Models;
 using Newtonsoft.Json;
 using Xamarin.Forms;
@@ -13,13 +13,9 @@ namespace BoilerController.ViewModels
     internal class SchedulePageViewModel : INotifyPropertyChanged
     {
         private bool _isRefreshing;
-
         private ObservableCollection<Job> _jobs;
-
         private DateTime _onDate = DateTime.Now;
-
         private TimeSpan _onTime = DateTime.Now.TimeOfDay;
-
         private int _selectedDuration;
         private ObservableCollection<WeekDay> _days;
 
@@ -47,6 +43,8 @@ namespace BoilerController.ViewModels
                 new WeekDay {Day = "Fri", IsSelected = false},
                 new WeekDay {Day = "Sat", IsSelected = false}
             };
+
+            GetTimes();
         }
 
         public ObservableCollection<Job> Jobs
@@ -147,7 +145,7 @@ namespace BoilerController.ViewModels
                 });
 
 
-                var response = await HttpHandler.HttpRequestTask("settime", job, "POST");
+                var response = await NetworkHandler.HttpRequestTask("settime", job, "POST");
                 if (await response.Content.ReadAsStringAsync() == "OK")
                     GetTimes();
             }
@@ -175,7 +173,7 @@ namespace BoilerController.ViewModels
                     DaysList = days
                 });
 
-                var response = await HttpHandler.HttpRequestTask("addcron", job, "POST");
+                var response = await NetworkHandler.HttpRequestTask("addcron", job, "POST");
                 if (await response.Content.ReadAsStringAsync() == "OK")
                     GetTimes();
             }
@@ -189,7 +187,7 @@ namespace BoilerController.ViewModels
         {
             try
             {
-                var response = await HttpHandler.HttpRequestTask("gettimes");
+                var response = await NetworkHandler.HttpRequestTask("gettimes");
                 var job = await response.Content.ReadAsStringAsync();
                 var jJobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
                 Jobs = jJobs;
@@ -206,7 +204,7 @@ namespace BoilerController.ViewModels
         {
             try
             {
-                var response = await HttpHandler.HttpRequestTask("remove?id=" + id, method: "DELETE");
+                var response = await NetworkHandler.HttpRequestTask("remove?id=" + id, method: "DELETE");
                 if (await response.Content.ReadAsStringAsync() == "OK")
                     GetTimes();
             }

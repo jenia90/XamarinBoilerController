@@ -8,11 +8,20 @@
     </ContentPage.ToolbarItems>
     
     
-    <TableView Intent="Settings">
+    <TableView Intent="Settings" Margin="10">
         <TableRoot>
             <TableSection Title="Server Address">
-                <EntryCell Label="Address" Placeholder="IP or Hostname"   Text="{Binding ServerAddress, Mode=TwoWay}" LabelColor="Black"/>
+                <EntryCell Label="Address" Keyboard="Url" Placeholder="IP or Hostname" Text="{Binding ServerAddress, Mode=TwoWay}" LabelColor="Black"/>
                 <EntryCell Keyboard="Numeric" Label="Port" Placeholder="Server Port" Text="{Binding ServerPort, Mode=TwoWay}" LabelColor="Black"/>
+            </TableSection>
+            <TableSection Title="Credentials">
+                <EntryCell Label="Username" LabelColor="Black" Placeholder="Enter username here" Text="{Binding Username, Mode=TwoWay}"/>
+                <ViewCell>
+                    <StackLayout Orientation="Vertical">
+                        <Label Text="Password"/>
+                        <Entry IsPassword="True" Placeholder="Enter password here" Text="{Binding Password, Mode=TwoWay}"/>
+                    </StackLayout>
+                </ViewCell>
             </TableSection>
         </TableRoot>
     </TableView>

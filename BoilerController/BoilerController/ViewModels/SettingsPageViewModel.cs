@@ -1,20 +1,26 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Text;
 using System.Windows.Input;
-using BoilerController.Common.Utilities;
+using BoilerController.Common.Helpers;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
 {
     internal class SettingsPageViewModel : INotifyPropertyChanged
     {
-        public SettingsPageViewModel()
-        {
-            var baseUrl = HttpHandler.BaseUrl.Split(':');
-            ServerAddress = baseUrl[0];
-            ServerPort = baseUrl[1];
-        }
         private string _serverAddress;
         private string _serverPort;
+        private string _username;
+        private string _password;
+
+        public SettingsPageViewModel()
+        {
+            var baseUrl = NetworkHandler.BaseUrl.Split(':');
+            ServerAddress = baseUrl[0];
+            ServerPort = baseUrl[1];
+            Username = Settings.Username;
+        }
 
         public string ServerAddress
         {
@@ -37,9 +43,33 @@ namespace BoilerController.ViewModels
             }
         }
 
+        public string Username  
+        {
+            get => _username;
+            set
+            {
+                _username = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Username"));
+            }
+        }
+
+        public string Password
+        {
+            get => _password;
+            set
+            {
+                _password = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Password"));
+            }
+        }
+        
         public ICommand SaveCommand => new Command( () =>
         {
-            HttpHandler.BaseUrl = _serverAddress + ":" + _serverPort;
+            NetworkHandler.BaseUrl = _serverAddress + ":" + _serverPort;
+            Settings.ServerAddress = NetworkHandler.BaseUrl;
+            Settings.Username = Username;
+            Settings.Password = Password;
+            //NetworkHandler.DisplayMessage("decryption test", Decrypt(Encrypt(Username, crypto), crypto));
         });
 
         public event PropertyChangedEventHandler PropertyChanged;

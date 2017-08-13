@@ -6,6 +6,9 @@ import json
 import sqlite3
 import RPi.GPIO as GPIO
 from apscheduler.schedulers.background import BackgroundScheduler
+import logging
+from logging.handlers import RotatingFileHandler
+import base64
 
 ON_STATE = '1'
 OFF_STATE = '0'
@@ -17,25 +20,45 @@ END_IDX = 2
 TYPE_IDX = 4
 DAYS_IDX = 5
 
-# production DB location
-DATABASE = '/home/pi/BoilerServer/boiler.db'
+PROD = True
 
-# dev server db location
-# DATABASE = 'boiler.db'
-API_KEY = 'Basic LC9BhYqKWXAlduiwu0fUgr8ZwW6GSbRUz1pOMWh2+NM='
-
-OnState = GPIO.HIGH
-OffState = GPIO.LOW
+if PROD:
+    # production strings
+    DATABASE = '/home/pi/BoilerServer/boiler.db'
+    LOG_PATH = '/var/log/boilerserver.log'
+else:
+    # # dev server db location
+    DATABASE = 'boiler.db'
+    LOG_PATH = 'boilerserver.log'
 
 scheduler = BackgroundScheduler()
-
+log = None
 app = Flask(__name__)
 db = sqlite3.connect(DATABASE)
 
+
+OnState = GPIO.HIGH
+OffState = GPIO.LOW
 pins = {17: {'name': 'Boiler', 'state': OffState}}
 
 lastStart = ""
 nextEnd = ''
+
+
+def is_auth(creds):
+    decoded = base64.b64decode(creds.split()[1]).decode('utf-8')
+    username, password = decoded.split(':')
+
+    try:
+        curs = db.cursor()
+        curs.execute('SELECT * FROM users WHERE Username=?',
+                     (username,))
+        user = curs.fetchone()
+        if base64.b64decode(user[3]).decode('utf-8') == password:
+            return True
+    except db.DatabaseError as e:
+        print(e)
+    return len(curs.fetchall()) > 0
 
 
 def manual_override(channel):
@@ -72,38 +95,23 @@ def add_scheduled_job(type, start, end, days=''):
             scheduler.add_job(set_state, 'date', id=str(start),
                               run_date=start,
                               misfire_grace_time=60,
-                              args=[ON_STATE])
+                              args=[ON_STATE, start, end])
         # add future end
         scheduler.add_job(set_state, 'date', id=str(end),
                           run_date=end,
-                          args=[OFF_STATE],
+                          args=[OFF_STATE, start, end],
                           misfire_grace_time=60)
     elif type == 'cron':
         scheduler.add_job(set_state, 'cron', id=str(start),
                           hour=start.hour, minute=start.minute,
                           day_of_week=days,
                           misfire_grace_time=60,
-                          args=[ON_STATE])
+                          args=[ON_STATE, start, end])
         scheduler.add_job(set_state, 'cron', id=str(end),
                           hour=end.hour, minute=end.minute,
                           day_of_week=days,
-                          args=[OFF_STATE],
+                          args=[OFF_STATE, start, end],
                           misfire_grace_time=60)
-
-
-def remove_job_from_db(id):
-    try:
-        curs = db.cursor()
-        curs.execute("DELETE FROM schedule WHERE ID=?;", (id,))
-        db.commit()
-        curs.execute("SELECT * FROM schedule")
-        # Check if the table is empty, in which case we reset the ID field.
-        if len(curs.fetchall()) == 0:
-            curs.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE "
-                         "NAME='schedule';")
-            db.commit()
-    except sqlite3.DatabaseError as e:
-        print(e)
 
 
 def get_jobs_from_db():
@@ -122,19 +130,29 @@ def get_jobs_from_db():
             add_scheduled_job(job[TYPE_IDX], start, end, job[DAYS_IDX])
             if end.hour >= cur_hour >= start.hour and \
                                     end.minute > cur_min >= start.minute:
-                set_state(ON_STATE)
+                set_state(ON_STATE, start, end)
     except sqlite3.DatabaseError as e:
         print(e)
 
 
-
-
+def remove_job_from_db(id):
+    try:
+        curs = db.cursor()
+        curs.execute("DELETE FROM schedule WHERE ID=?;", (id,))
+        db.commit()
+        curs.execute("SELECT * FROM schedule")
+        # Check if the table is empty, in which case we reset the ID field.
+        if len(curs.fetchall()) == 0:
+            curs.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE "
+                         "NAME='schedule';")
+            db.commit()
+    except sqlite3.DatabaseError as e:
+        print(e)
 
 
 @app.route('/api/remove', methods=['DELETE'])
 def delete_item():
-    key = request.headers['authorization']
-    if key != API_KEY:
+    if not is_auth(request.headers['authorization']):
         return 'Unauthorized', 401
 
     id = request.args['id']
@@ -163,20 +181,25 @@ def delete_item():
     return 'OK', 200
 
 
-def set_state(state=None):
+def set_state(state=None, start=datetime.now(),
+              end=datetime.now() + timedelta(hours=2)):
     """
     Sets desired state
     :param state: desired state string
+    :param start: if scheduled job then initial start time; blank otherwise
+    :param end: end time of scheduled job
     :return:
     """
-    global lastStart
+    global lastStart, nextEnd
     if state == ON_STATE:
 
         pins[17]['state'] = OnState
-        lastStart = str(datetime.now())
+        nextEnd = str(end)
+        lastStart = str(start)
     elif state == OFF_STATE or state is None:
         pins[17]['state'] = OffState
         lastStart = ''
+        nextEnd = ''
 
     GPIO.output(17, pins[17]['state'])
 
@@ -190,8 +213,7 @@ def set_time():
     j = request.json
     if len(j) < 4:
         return 'BAD', 500
-    key = request.headers['authorization']
-    if key != API_KEY:
+    if not is_auth(request.headers['authorization']):
         return 'Unauthorized', 401
     pin = j['pin']
     start = j['start']
@@ -226,8 +248,7 @@ def add_cron_job():
     if len(j) < 5:
         return 'BAD', 500
 
-    key = request.headers['authorization']
-    if key != API_KEY:
+    if not is_auth(request.headers['authorization']):
         return 'Unauthorized', 401
 
     pin = j['pin']
@@ -240,8 +261,9 @@ def add_cron_job():
         curs = db.cursor()
 
         try:
-            curs.execute("INSERT INTO schedule (dev,  turnon, turnoff, type, "
-                         "daysofweek) VALUES (?,?,?,?,?);",
+            curs.execute("INSERT INTO schedule "
+                         "(dev,  turnon, turnoff, type, daysofweek) "
+                         "VALUES (?,?,?,?,?);",
                          (pin, start, end, sched_type, days))
             db.commit()
             jobstart = datetime.strptime(start, "%Y-%m-%d %H:%M")
@@ -262,8 +284,7 @@ def get_times():
     """
     Replies a list of scheduled jobs
     """
-    key = request.headers['authorization']
-    if key != API_KEY:
+    if not is_auth(request.headers['authorization']):
         return 'Unauthorized', 401
     curs = db.cursor()
     try:
@@ -296,8 +317,7 @@ def remote_set_state():
     """
     Sets working state
     """
-    key = request.headers['authorization']
-    if key != API_KEY:
+    if not is_auth(request.headers['authorization']):
         return 'Unauthorized', 401
 
     num = int(request.args['dev'])
@@ -330,8 +350,7 @@ def remote_get_state():
     Replies with the current working state
     :return: json string with the state.
     """
-    key = request.headers['authorization']
-    if key != API_KEY:
+    if not is_auth(request.headers['authorization']):
         return 'Unauthorized', 401
 
     num = int(request.args['dev'])
@@ -354,4 +373,9 @@ def run_server():
 
 
 if __name__ == '__main__':
+    handler = RotatingFileHandler(LOG_PATH, maxBytes=10000,
+                                  backupCount=1)
+    log = logging.getLogger('werkzeug')
+    handler.setLevel(logging.DEBUG)
+    log.addHandler(handler)
     run_server()

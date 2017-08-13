@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Input;
-using BoilerController.Common.Utilities;
+using BoilerController.Common.Helpers;
 using Newtonsoft.Json;
 using Xamarin.Forms;
 
@@ -103,12 +103,12 @@ namespace BoilerController.ViewModels
             {
                 case true:
                     {
-                        await HttpHandler.HttpRequestTask("setstate?dev=17&state=1");
+                        await NetworkHandler.HttpRequestTask("setstate?dev=17&state=1");
                     }
                     break;
                 case false:
                     {
-                        await HttpHandler.HttpRequestTask("setstate?dev=17&state=0");
+                        await NetworkHandler.HttpRequestTask("setstate?dev=17&state=0");
                     }
                     break;
             }
@@ -122,7 +122,7 @@ namespace BoilerController.ViewModels
         {
             try
             {
-                var response = await HttpHandler.HttpRequestTask("getstate?dev=17");
+                var response = await NetworkHandler.HttpRequestTask("getstate?dev=17");
                 if (response == null)
                 {
                     IsConnectedToServer = false;
@@ -138,22 +138,22 @@ namespace BoilerController.ViewModels
                 switch(data.state)
                 {
                     case "On":
+                        StatColor = Color.Green;
                         IsConnectedToServer = true;
                         _isToggled = true;
-                        StatColor = Color.Green;
                         OnSince = DateTime.Parse(data.on_since).ToString("HH:mm");
                         break;
                     case "Off":
+                        StatColor = Color.Red;
                         IsConnectedToServer = true;
                         _isToggled = false;
-                        StatColor = Color.Red;
-                        OnSince = "00:00:00";
+                        OnSince = "";
                         break;
                     default:
                         IsConnectedToServer = false;
                         _isToggled = false;
                         StatColor = Color.DarkGray;
-                        break;
+                        throw new Exception("Server Unreachable");
 
                 }
 
@@ -161,7 +161,7 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                HttpHandler.DisplayMessage("Server Unreachable", "Unable to connect to server");
+                NetworkHandler.DisplayMessage("Server Unreachable", "Unable to connect to server");
             }
         }
 
