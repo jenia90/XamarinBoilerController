@@ -4,44 +4,42 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:BoilerController.Common.Converters;assembly=BoilerController.Common"
              x:Class="BoilerController.Views.MainPageDetail" Title="Boiler Controller">
+    <ContentPage.Content>
+        <Grid>
 
-    <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="20*" />
+            </Grid.RowDefinitions>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20*" />
-            <RowDefinition Height="20*" />
-            <RowDefinition Height="20*" />
-            <RowDefinition Height="20*" />
-        </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20*" />
+                <ColumnDefinition Width="60*" />
+                <ColumnDefinition Width="20*" />
+            </Grid.ColumnDefinitions>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20*" />
-            <ColumnDefinition Width="60*" />
-            <ColumnDefinition Width="20*" />
-        </Grid.ColumnDefinitions>
-
-        <StackLayout Grid.ColumnSpan="3" Grid.Row="0" Orientation="Horizontal" HorizontalOptions="Center">
-            <Label VerticalOptions="Center" Text="Current Status: " />
-            <Label VerticalOptions="Center" TextColor="{Binding StatColor}">
-                <Label.Text>
-                    <Binding Path="IsToggled">
-                        <Binding.Converter>
-                            <converters:StatusStringConverter TrueText="On" FalseText="Off" />
-                        </Binding.Converter>
-                    </Binding>
-                </Label.Text>
-            </Label>
-            <Button VerticalOptions="Center" Text="Get Status" Command="{Binding GetStatusCommand}" />
-        </StackLayout>
-        <Label IsVisible="{Binding IsToggled}" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+            <StackLayout Grid.ColumnSpan="3" Grid.Row="0" Orientation="Horizontal" HorizontalOptions="Center">
+                <Label VerticalOptions="Center" Text="Current Status: " />
+                <Label VerticalOptions="Center" TextColor="{Binding StatColor}">
+                    <Label.Text>
+                        <Binding Path="IsToggled">
+                            <Binding.Converter>
+                                <converters:StatusStringConverter TrueText="On" FalseText="Off" />
+                            </Binding.Converter>
+                        </Binding>
+                    </Label.Text>
+                </Label>
+            </StackLayout>
+            <Label IsVisible="{Binding IsToggled}" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
                Grid.RowSpan="2" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand"
                HorizontalOptions="CenterAndExpand" Text="{Binding Path=OnSince, StringFormat='On Since: {0}'}"
                FontSize="72" />
-        <Switch Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
+            <Switch Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
                 IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />
 
 
-    </Grid>
+        </Grid>
+    </ContentPage.Content>
 </ContentPage>
-
-<!--, Converter={StaticResource StatusToBoolConverter}}"-->

@@ -27,7 +27,6 @@ namespace BoilerController.ViewModels
             get => _serverAddress;
             set
             {
-                if (value == _serverAddress) return;
                 _serverAddress = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ServerAddress"));
             }

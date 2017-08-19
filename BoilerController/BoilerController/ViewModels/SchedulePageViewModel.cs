@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -149,9 +150,9 @@ namespace BoilerController.ViewModels
                 if (await response.Content.ReadAsStringAsync() == "OK")
                     GetTimes();
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                Console.WriteLine(exception);
+                NetworkHandler.DisplayMessage("Error Occured", e.Message);
             }
         }
 
@@ -161,7 +162,14 @@ namespace BoilerController.ViewModels
             {
                 IsRefreshing = true;
 
-                var days = from weekDay in Days where weekDay.IsSelected select weekDay.Day;
+                var days = new List<string>(from weekDay in Days where weekDay.IsSelected select weekDay.Day);
+
+                if (days.Count == 0)
+                {
+                    IsRefreshing = false;
+                    NetworkHandler.DisplayMessage("Error", "No days for recurring schedule selected.");
+                    return;
+                }
 
 
                 var job = JsonConvert.SerializeObject(new Job
@@ -179,7 +187,7 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                NetworkHandler.DisplayMessage("Error Occured", e.Message);
             }
         }
 
@@ -187,16 +195,17 @@ namespace BoilerController.ViewModels
         {
             try
             {
+                IsRefreshing = true;
+
                 var response = await NetworkHandler.HttpRequestTask("gettimes");
                 var job = await response.Content.ReadAsStringAsync();
-                var jJobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
-                Jobs = jJobs;
+                Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
 
                 IsRefreshing = false;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                NetworkHandler.DisplayMessage("Error Occured", e.Message);
             }
         }
 
@@ -210,7 +219,7 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                NetworkHandler.DisplayMessage("Error Occured", e.Message);
             }
         }
     }

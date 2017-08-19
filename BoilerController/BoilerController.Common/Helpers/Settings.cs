@@ -14,13 +14,10 @@ namespace BoilerController.Common.Helpers
 	/// </summary>
 	public static class Settings
 	{
-		private static ISettings AppSettings
-		{
-			get
-			{
-				return CrossSettings.Current;
-			}
-		}
+	    private static ISettings AppSettings
+	    {
+	        get { return CrossSettings.Current; }
+	    } 
 
 		#region Setting Constants
 

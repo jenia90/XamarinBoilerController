@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BoilerController", "BoilerController\BoilerController\BoilerController.shproj", "{AEAFA4CA-86E2-4FE5-9BD8-21AA779CD350}"
 EndProject
@@ -20,6 +20,7 @@ Global
 		BoilerController\BoilerController\BoilerController.projitems*{a19023ac-33ff-4284-a9e8-9aa0c2a54635}*SharedItemsImports = 4
 		BoilerController\BoilerController\BoilerController.projitems*{aeafa4ca-86e2-4fe5-9bd8-21aa779cd350}*SharedItemsImports = 13
 		BoilerController\BoilerController\BoilerController.projitems*{c13f34bd-8055-4b5e-86c5-94bf4c6a85a7}*SharedItemsImports = 4
+		BoilerController\BoilerController\BoilerController.projitems*{d9d07ab6-1b8f-402f-9d19-238437e5fdc3}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU

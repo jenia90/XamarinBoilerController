@@ -7,7 +7,7 @@
              x:Name="MainPageClass" MasterBehavior="Popover">
     
     <MasterDetailPage.Master>
-        <ContentPage Title="Boiler Controller">
+        <ContentPage Title="Boiler Controller" Padding="0,40,0,0">
             <ContentPage.Content>
                 <StackLayout Padding="10">
                     <Button Text="Main" Clicked="BackButton_OnClicked"/>

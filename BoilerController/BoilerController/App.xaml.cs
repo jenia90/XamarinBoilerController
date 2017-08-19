@@ -11,8 +11,6 @@ namespace BoilerController
 		{
 			InitializeComponent();
 
-		    NetworkHandler.BaseUrl = Settings.ServerAddress;
-
             MainPage = new BoilerController.Views.MainPage();
 		}
 

@@ -9,6 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 from logging.handlers import RotatingFileHandler
 import base64
+from LcdHelper import LcdHelper
 
 ON_STATE = '1'
 OFF_STATE = '0'
@@ -20,12 +21,12 @@ END_IDX = 2
 TYPE_IDX = 4
 DAYS_IDX = 5
 
-PROD = True
+PROD = False
 
 if PROD:
     # production strings
     DATABASE = '/home/pi/BoilerServer/boiler.db'
-    LOG_PATH = '/var/log/boilerserver.log'
+    LOG_PATH = 'boilerserver.log'
 else:
     # # dev server db location
     DATABASE = 'boiler.db'
@@ -35,6 +36,7 @@ scheduler = BackgroundScheduler()
 log = None
 app = Flask(__name__)
 db = sqlite3.connect(DATABASE)
+lcd = LcdHelper()
 
 
 OnState = GPIO.HIGH
@@ -64,17 +66,20 @@ def is_auth(creds):
 def manual_override(channel):
     start = datetime.now()
     end = datetime.now() + timedelta(hours=2)
+    state = GPIO.input(channel)
 
     global lastStart
     global nextEnd
-    if pins[17]['state'] == OffState:
+    if state == OffState:
         pins[17]['state'] = OnState
         add_scheduled_job('datetime', start, end)
         nextEnd = str(end)
         lastStart = str(datetime.now())
-    elif pins[17]['state'] == OnState:
+        lcd.print_text('Active Since:\n' + lastStart)
+    elif state == OnState:
         pins[17]['state'] = OffState
         scheduler.remove_job(nextEnd)
+        lcd.print_text('Last Active:\n' + lastStart)
 
     GPIO.output(17, pins[17]['state'])
 
@@ -85,7 +90,7 @@ def setup_gpio():
     GPIO.setup(17, GPIO.OUT)
     GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.output(17, GPIO.LOW)
-    GPIO.add_event_detect(23, GPIO.FALLING,
+    GPIO.add_event_detect(23, GPIO.BOTH,
                           callback=manual_override, bouncetime=300)
 
 
@@ -196,8 +201,10 @@ def set_state(state=None, start=datetime.now(),
         pins[17]['state'] = OnState
         nextEnd = str(end)
         lastStart = str(start)
+        lcd.print_text('Active Since:\n' + lastStart)
     elif state == OFF_STATE or state is None:
         pins[17]['state'] = OffState
+        lcd.print_text('Last Active:\n' + lastStart)
         lastStart = ''
         nextEnd = ''
 
@@ -298,7 +305,7 @@ def get_times():
         days = q[DAYS_IDX]
         if days is None:
             days = []
-        elif ',' in days:
+        else:
             days = days.split(',')
 
         lst.append({'ID'   : q[ID_IDX],
@@ -334,9 +341,11 @@ def remote_set_state():
         add_scheduled_job('datetime', start, end)
         nextEnd = str(end)
         lastStart = str(datetime.now())
+        lcd.print_text('Active since:\n' + lastStart)
     elif state == OFF_STATE:
         pins[num]['state'] = OffState
         scheduler.remove_job(nextEnd)
+        lcd.print_text('Last Active:\n' + lastStart)
         lastStart = ''
     else:
         return 'BAD', 500

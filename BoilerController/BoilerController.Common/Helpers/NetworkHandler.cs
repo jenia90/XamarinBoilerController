@@ -10,14 +10,12 @@ namespace BoilerController.Common.Helpers
 {
     public class NetworkHandler
     {
-        private static string _apiKey = "LC9BhYqKWXAlduiwu0fUgr8ZwW6GSbRUz1pOMWh2+NM=";
-
-        public static string BaseUrl { get; set; } = "192.168.1.178:5000";
+        public static string BaseUrl { get; set; } = Settings.ServerAddress;
 
         /// <summary>
         ///     Sends formated request to the boiler server
         /// </summary>
-        /// <param name="request" type="HttpResponseMessage">Request string to send</param>
+        /// <param name="request" type="string">Request string to send</param>
         /// <returns>Return status from the server</returns>
         public static async Task<HttpResponseMessage> HttpRequestTask(string request, string json = "",
             string method = "GET")
@@ -29,7 +27,6 @@ namespace BoilerController.Common.Helpers
             {
                 try
                 {
-                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _apiKey);
                     client.DefaultRequestHeaders.Authorization = 
                         new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.Username + ":" + Settings.Password)));
 
