@@ -122,8 +122,7 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public ICommand SetTimerCommand => new Command(SetTimer);
-        public ICommand SetCronCommand => new Command(SetCronJob);
+        public ICommand SetTimerCommand => new Command<string>(SetTimer);
         public ICommand GetTimesCommand => new Command(GetTimes);
         public ICommand DeleteCommand => new Command<int>(RemoveItem);
 
@@ -132,70 +131,53 @@ namespace BoilerController.ViewModels
         /// <summary>
         ///     Sends a schedule command to the boiler
         /// </summary>
-        private async void SetTimer()
+        private async void SetTimer(string type)
         {
             try
             {
                 IsRefreshing = true;
-                var job = JsonConvert.SerializeObject(new Job
-                {
-                    Pin = 17,
-                    Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
-                    End = $@"{OnDate:yyyy-MM-dd} {OnTime.Add(new TimeSpan(0, SelectedDuration * 15 + 15, 0)):hh\:mm}",
-                    Type = "datetime"
-                });
+                List<string> days = new List<string>(from weekDay in Days where weekDay.IsSelected select weekDay.Day);
 
-
-                var response = await NetworkHandler.HttpRequestTask("settime", job, "POST");
-                if (await response.Content.ReadAsStringAsync() == "OK")
-                    GetTimes();
-            }
-            catch (Exception e)
-            {
-                NetworkHandler.DisplayMessage("Error Occured", e.Message);
-            }
-        }
-
-        private async void SetCronJob()
-        {
-            try
-            {
-                IsRefreshing = true;
-
-                var days = new List<string>(from weekDay in Days where weekDay.IsSelected select weekDay.Day);
-
-                if (days.Count == 0)
+                if (type == "addcron" && days.Count == 0)
                 {
                     IsRefreshing = false;
                     NetworkHandler.DisplayMessage("Error", "No days for recurring schedule selected.");
                     return;
                 }
 
-
                 var job = JsonConvert.SerializeObject(new Job
                 {
                     Pin = 17,
                     Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
-                    End = $@"{OnDate:yyyy-MM-dd} {OnTime.Add(new TimeSpan(0, SelectedDuration * 15 + 15, 0)):hh\:mm}",
-                    Type = "cron",
+                    End = DateTime.Parse($@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}").Add(
+                        new TimeSpan(0, SelectedDuration * 15 + 15, 0)).ToString("yyyy-MM-dd hh:mm"),
+                    Type = type == "settime" ? "datetime" : "cron",
                     DaysList = days
                 });
 
-                var response = await NetworkHandler.HttpRequestTask("addcron", job, "POST");
+
+                var response = await NetworkHandler.HttpRequestTask(type, job, "POST");
                 if (await response.Content.ReadAsStringAsync() == "OK")
+                {
                     GetTimes();
+                    foreach (var day in Days)
+                        if (days.Contains(day.Day))
+                            day.IsSelected = false;
+                }
             }
             catch (Exception e)
             {
                 NetworkHandler.DisplayMessage("Error Occured", e.Message);
             }
+            finally { IsRefreshing = false; }
         }
 
         private async void GetTimes()
         {
             try
             {
-                IsRefreshing = true;
+                if (!IsRefreshing)
+                    IsRefreshing = true;
 
                 var response = await NetworkHandler.HttpRequestTask("gettimes");
                 var job = await response.Content.ReadAsStringAsync();
@@ -207,6 +189,7 @@ namespace BoilerController.ViewModels
             {
                 NetworkHandler.DisplayMessage("Error Occured", e.Message);
             }
+            finally { IsRefreshing = false; }
         }
 
         private async void RemoveItem(int id)
