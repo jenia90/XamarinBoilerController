@@ -1,22 +1,52 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<MasterDetailPage xmlns="http://xamarin.com/schemas/2014/forms"
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:BoilerController"
-             xmlns:views="clr-namespace:BoilerController.Views"
-             x:Class="BoilerController.Views.MainPage"
-             x:Name="MainPageClass" MasterBehavior="Popover">
-    
-    <MasterDetailPage.Master>
-        <ContentPage Title="Boiler Controller" Padding="0,40,0,0">
-            <ContentPage.Content>
-                <StackLayout Padding="10">
-                    <Button Text="Main" Clicked="BackButton_OnClicked"/>
-                    <Button Text="Schedule" Clicked="ScheduleButton_OnClicked"/>
-                    <Button Text="Settings" Clicked="SettingsButton_OnClicked"/>
-                </StackLayout>
-            </ContentPage.Content>
-        </ContentPage>
-    </MasterDetailPage.Master>
-    <MasterDetailPage.Detail>
-    </MasterDetailPage.Detail>
-</MasterDetailPage>
+             xmlns:converters="clr-namespace:BoilerController.Common.Converters;assembly=BoilerController.Common"
+             xmlns:viewModels="clr-namespace:BoilerController.ViewModels"
+             x:Class="BoilerController.Views.MainPage" Title="Boiler Controller">
+    <ContentPage.BindingContext>
+        <viewModels:MainPageViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Refresh" Icon="Assets/RefreshIcon.png" Command="{Binding GetStatusCommand}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="20*" />
+                <RowDefinition Height="20*" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20*" />
+                <ColumnDefinition Width="60*" />
+                <ColumnDefinition Width="20*" />
+            </Grid.ColumnDefinitions>
+
+            <StackLayout Grid.ColumnSpan="3" Grid.Row="0" Orientation="Horizontal" HorizontalOptions="Center">
+                <Label VerticalOptions="Center" Text="Current Status: " />
+                <Label VerticalOptions="Center" TextColor="{Binding StatColor}">
+                    <Label.Text>
+                        <Binding Path="IsToggled">
+                            <Binding.Converter>
+                                <converters:StatusStringConverter TrueText="On" FalseText="Off" />
+                            </Binding.Converter>
+                        </Binding>
+                    </Label.Text>
+                </Label>
+            </StackLayout>
+            <Label IsVisible="{Binding IsToggled}" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+               Grid.RowSpan="2" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand"
+               HorizontalOptions="CenterAndExpand" Text="{Binding Path=OnSince, StringFormat='On Since: {0}'}"
+               FontSize="72" />
+            <Switch Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
+                IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}" />
+
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

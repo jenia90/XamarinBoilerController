@@ -11,6 +11,8 @@ from logging.handlers import RotatingFileHandler
 import base64
 from LcdHelper import LcdHelper
 
+DT_FORMAT = "%Y-%m-%d %H:%M"
+
 ON_STATE = '1'
 OFF_STATE = '0'
 
@@ -21,7 +23,12 @@ END_IDX = 2
 TYPE_IDX = 4
 DAYS_IDX = 5
 
-PROD = False
+BOILER_PIN = 17
+HEATER_STATUS_PIN = 23
+RELAY_STATUS_PIN = 24
+
+
+PROD = True
 
 if PROD:
     # production strings
@@ -41,7 +48,7 @@ lcd = LcdHelper()
 
 OnState = GPIO.HIGH
 OffState = GPIO.LOW
-pins = {17: {'name': 'Boiler', 'state': OffState}}
+pins = {BOILER_PIN: {'name': 'Boiler', 'state': OffState}}
 
 lastStart = ""
 nextEnd = ''
@@ -79,7 +86,7 @@ def manual_override(channel):
     elif state == OnState:
         pins[17]['state'] = OffState
         scheduler.remove_job(nextEnd)
-        lcd.print_text('Last Active:\n' + lastStart)
+        lcd.print_text('Last Active:\n' + datetime.now().strftime(DT_FORMAT))
 
     GPIO.output(17, pins[17]['state'])
 
@@ -88,9 +95,9 @@ def setup_gpio():
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     GPIO.setup(17, GPIO.OUT)
-    GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(HEATER_STATUS_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.output(17, GPIO.LOW)
-    GPIO.add_event_detect(23, GPIO.BOTH,
+    GPIO.add_event_detect(HEATER_STATUS_PIN, GPIO.BOTH,
                           callback=manual_override, bouncetime=300)
 
 
@@ -126,8 +133,8 @@ def get_jobs_from_db():
         c = db.cursor()
         c.execute("SELECT * FROM schedule")
         for job in c.fetchall():
-            start = datetime.strptime(job[START_IDX], "%Y-%m-%d %H:%M")
-            end = datetime.strptime(job[END_IDX], "%Y-%m-%d %H:%M")
+            start = datetime.strptime(job[START_IDX], DT_FORMAT)
+            end = datetime.strptime(job[END_IDX], DT_FORMAT)
             if end <= datetime.now():
                 remove_job_from_db(job[ID_IDX])
                 continue
@@ -178,8 +185,8 @@ def delete_item():
     except Exception as e:
         print(e)
 
-    start = datetime.strptime(start, "%Y-%m-%d %H:%M")
-    end = datetime.strptime(end, "%Y-%m-%d %H:%M")
+    start = datetime.strptime(start, DT_FORMAT)
+    end = datetime.strptime(end, DT_FORMAT)
     if end > datetime.now() > start and pins[17]['state'] == OnState:
         set_state(OFF_STATE)
 
@@ -204,7 +211,7 @@ def set_state(state=None, start=datetime.now(),
         lcd.print_text('Active Since:\n' + lastStart)
     elif state == OFF_STATE or state is None:
         pins[17]['state'] = OffState
-        lcd.print_text('Last Active:\n' + lastStart)
+        lcd.print_text('Last Active:\n' + datetime.now().strftime(DT_FORMAT))
         lastStart = ''
         nextEnd = ''
 
@@ -234,8 +241,8 @@ def set_time():
                          "VALUES (?,?,?,?);",
                          (pin, start, end, sched_type))
             db.commit()
-            start = datetime.strptime(start, "%Y-%m-%d %H:%M")
-            end = datetime.strptime(end, "%Y-%m-%d %H:%M")
+            start = datetime.strptime(start, DT_FORMAT)
+            end = datetime.strptime(end, DT_FORMAT)
             add_scheduled_job(sched_type, start, end)
         except Exception as e:
             db.commit()
@@ -273,8 +280,8 @@ def add_cron_job():
                          "VALUES (?,?,?,?,?);",
                          (pin, start, end, sched_type, days))
             db.commit()
-            jobstart = datetime.strptime(start, "%Y-%m-%d %H:%M")
-            jobend = datetime.strptime(end, "%Y-%m-%d %H:%M")
+            jobstart = datetime.strptime(start, DT_FORMAT)
+            jobend = datetime.strptime(end, DT_FORMAT)
             add_scheduled_job(sched_type, jobstart, jobend, days)
         except Exception as e:
             db.commit()
@@ -345,7 +352,7 @@ def remote_set_state():
     elif state == OFF_STATE:
         pins[num]['state'] = OffState
         scheduler.remove_job(nextEnd)
-        lcd.print_text('Last Active:\n' + lastStart)
+        lcd.print_text('Last Active:\n' + datetime.now().strftime(DT_FORMAT))
         lastStart = ''
     else:
         return 'BAD', 500
@@ -373,6 +380,7 @@ def remote_get_state():
 
 def run_server():
     setup_gpio()
+    lcd.print_text('Server Running!')
     get_jobs_from_db()
     scheduler.start()
     app.run(host='0.0.0.0')

@@ -3683,8 +3683,8 @@ namespace BoilerController.Droid
 			// aapt resource value: 0x7f0200a2
 			public const int mr_ic_play_light = 2130837666;
 			
-			// aapt resource value: 0x7f0200a7
-			public const int notification_template_icon_bg = 2130837671;
+			// aapt resource value: 0x7f0200a8
+			public const int notification_template_icon_bg = 2130837672;
 			
 			// aapt resource value: 0x7f0200a3
 			public const int OneTimeIcon = 2130837667;
@@ -3697,6 +3697,9 @@ namespace BoilerController.Droid
 			
 			// aapt resource value: 0x7f0200a6
 			public const int SaveIcon = 2130837670;
+			
+			// aapt resource value: 0x7f0200a7
+			public const int SettingsIcon = 2130837671;
 			
 			static Drawable()
 			{

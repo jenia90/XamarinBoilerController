@@ -10,7 +10,12 @@ namespace BoilerController.Views
 		public SettingsPage ()
 		{
 			InitializeComponent ();
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
             BindingContext = new SettingsPageViewModel();
-		}
-	}
+        }
+    }
 }

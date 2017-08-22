@@ -2,12 +2,16 @@
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:BoilerController.ViewModels"
              x:Class="BoilerController.Views.SettingsPage" Title="Settings">
+    <ContentPage.BindingContext>
+        <viewModels:SettingsPageViewModel/>
+    </ContentPage.BindingContext>
+    
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Save" Command="{Binding SaveCommand}" Icon="Assets/SaveIcon.png"/>
     </ContentPage.ToolbarItems>
-    
-    
+
     <TableView Intent="Settings" Margin="10">
         <TableRoot>
             <TableSection Title="Server Address">
@@ -15,7 +19,7 @@
                 <EntryCell Keyboard="Numeric" Label="Port" Placeholder="Server Port" Text="{Binding ServerPort, Mode=TwoWay}" LabelColor="Black"/>
             </TableSection>
             <TableSection Title="Credentials">
-                <EntryCell Label="Username" LabelColor="Black" Placeholder="Enter username here" Text="{Binding Username, Mode=TwoWay}"/>
+                <EntryCell Keyboard="Email" Label="Username" LabelColor="Black" Placeholder="Enter username here" Text="{Binding Username, Mode=TwoWay}"/>
                 <ViewCell>
                     <StackLayout Orientation="Vertical">
                         <Label Text="Password"/>

@@ -22,6 +22,7 @@ namespace BoilerController.ViewModels
 
         public SchedulePageViewModel()
         {
+#region Init collections
             Durations = new ObservableCollection<string>
             {
                 "15 mins",
@@ -44,6 +45,7 @@ namespace BoilerController.ViewModels
                 new WeekDay {Day = "Fri", IsSelected = false},
                 new WeekDay {Day = "Sat", IsSelected = false}
             };
+#endregion
 
             GetTimes();
         }
@@ -129,34 +131,40 @@ namespace BoilerController.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        ///     Sends a schedule command to the boiler
+        /// Adds a scheduled activation
         /// </summary>
+        /// <param name="type">type of schedule: </param>
         private async void SetTimer(string type)
         {
             try
             {
+                // Set the listview to refreshing state
                 IsRefreshing = true;
+
+                // Get list of selected days
                 List<string> days = new List<string>(from weekDay in Days where weekDay.IsSelected select weekDay.Day);
 
+                // Check if the command is daily schedule in which case check that some days were selected
                 if (type == "addcron" && days.Count == 0)
                 {
                     IsRefreshing = false;
-                    NetworkHandler.DisplayMessage("Error", "No days for recurring schedule selected.");
+                    await App.CurrentPage.DisplayAlert("Error Occured", "No days for recurring schedule selected.", "Dismiss");
                     return;
                 }
 
+                // Serealize a new Job object
                 var job = JsonConvert.SerializeObject(new Job
                 {
                     Pin = 17,
                     Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
                     End = DateTime.Parse($@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}").Add(
-                        new TimeSpan(0, SelectedDuration * 15 + 15, 0)).ToString("yyyy-MM-dd hh:mm"),
+                        new TimeSpan(0, SelectedDuration * 15 + 15, 0)).ToString("yyyy-MM-dd HH:mm"),
                     Type = type == "settime" ? "datetime" : "cron",
                     DaysList = days
                 });
 
-
-                var response = await NetworkHandler.HttpRequestTask(type, job, "POST");
+                // Send the request to the server and in case of success update the listview
+                var response = await NetworkHandler.GetResponseTask(type, job, "POST");
                 if (await response.Content.ReadAsStringAsync() == "OK")
                 {
                     GetTimes();
@@ -167,42 +175,50 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                NetworkHandler.DisplayMessage("Error Occured", e.Message);
+                await App.CurrentPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
             }
             finally { IsRefreshing = false; }
         }
 
+        /// <summary>
+        /// Populates the list of scheduled jobs
+        /// </summary>
         private async void GetTimes()
         {
             try
             {
+                // If already refreshing no need to set the state again
                 if (!IsRefreshing)
                     IsRefreshing = true;
 
-                var response = await NetworkHandler.HttpRequestTask("gettimes");
+                // Get the list of jobs from the server
+                var response = await NetworkHandler.GetResponseTask("gettimes");
                 var job = await response.Content.ReadAsStringAsync();
-                Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
 
+                // Deserialize the jobs list and updat the Jobs collection
+                Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
+                
                 IsRefreshing = false;
             }
             catch (Exception e)
             {
-                NetworkHandler.DisplayMessage("Error Occured", e.Message);
+                await App.Current.MainPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
             }
             finally { IsRefreshing = false; }
         }
 
+        // Removes the selected item
         private async void RemoveItem(int id)
         {
             try
             {
-                var response = await NetworkHandler.HttpRequestTask("remove?id=" + id, method: "DELETE");
+                var response = await NetworkHandler.GetResponseTask("remove?id=" + id, method: "DELETE");
                 if (await response.Content.ReadAsStringAsync() == "OK")
                     GetTimes();
             }
             catch (Exception e)
             {
-                NetworkHandler.DisplayMessage("Error Occured", e.Message);
+                await App.CurrentPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
             }
         }
     }

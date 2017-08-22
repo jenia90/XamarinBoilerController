@@ -14,12 +14,15 @@ namespace BoilerController.ViewModels
         private string _username;
         private string _password;
 
+        private bool _isPassChanged = false;
+
         public SettingsPageViewModel()
         {
             var baseUrl = NetworkHandler.BaseUrl.Split(':');
             ServerAddress = baseUrl[0];
             ServerPort = baseUrl[1];
-            Username = Settings.Username;
+            _username = Settings.Username;
+            _password = Settings.Password;
         }
 
         public string ServerAddress
@@ -57,7 +60,9 @@ namespace BoilerController.ViewModels
             get => _password;
             set
             {
+                if (_password == value) return;
                 _password = value;
+                _isPassChanged = true;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Password"));
             }
         }
@@ -67,8 +72,11 @@ namespace BoilerController.ViewModels
             NetworkHandler.BaseUrl = _serverAddress + ":" + _serverPort;
             Settings.ServerAddress = NetworkHandler.BaseUrl;
             Settings.Username = Username;
-            Settings.Password = Password;
-            //NetworkHandler.DisplayMessage("decryption test", Decrypt(Encrypt(Username, crypto), crypto));
+            if (_isPassChanged)
+            {
+                Settings.Password = Convert.ToBase64String(Encoding.UTF8.GetBytes(Password));
+                _isPassChanged = false;
+            }
         });
 
         public event PropertyChangedEventHandler PropertyChanged;

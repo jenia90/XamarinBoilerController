@@ -103,12 +103,12 @@ namespace BoilerController.ViewModels
             {
                 case true:
                     {
-                        await NetworkHandler.HttpRequestTask("setstate?dev=17&state=1");
+                        await NetworkHandler.GetResponseTask("setstate?dev=17&state=1");
                     }
                     break;
                 case false:
                     {
-                        await NetworkHandler.HttpRequestTask("setstate?dev=17&state=0");
+                        await NetworkHandler.GetResponseTask("setstate?dev=17&state=0");
                     }
                     break;
             }
@@ -122,7 +122,7 @@ namespace BoilerController.ViewModels
         {
             try
             {
-                var response = await NetworkHandler.HttpRequestTask("getstate?dev=17");
+                var response = await NetworkHandler.GetResponseTask("getstate?dev=17");
                 if (response == null)
                 {
                     IsConnectedToServer = false;
@@ -161,7 +161,8 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                NetworkHandler.DisplayMessage("Server Unreachable", "Unable to connect to server");
+                await App.Current.MainPage.Navigation.PushAsync(new Views.SettingsPage());
+                //await App.CurrentPage.DisplayAlert("Server Unreachable", "Unable to connect to server", "Dismiss");
             }
         }
 

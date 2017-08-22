@@ -1,4 +1,5 @@
 ﻿using BoilerController.Common.Helpers;
+using BoilerController.Views;
 using Xamarin.Forms;
 
 namespace BoilerController
@@ -11,7 +12,7 @@ namespace BoilerController
 		{
 			InitializeComponent();
 
-            MainPage = new BoilerController.Views.MainPage();
+            MainPage = new NavigationPage(new TabbedMainPage());
 		}
 
 		protected override void OnStart ()

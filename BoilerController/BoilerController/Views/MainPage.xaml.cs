@@ -1,34 +1,27 @@
 ﻿using System;
-using System.Windows.Input;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using BoilerController.ViewModels;
+using BoilerController.Common.Converters;
 using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 
 namespace BoilerController.Views
 {
-	public partial class MainPage : MasterDetailPage
-    {
-	    public MainPage()
+	[XamlCompilation(XamlCompilationOptions.Compile)]
+	public partial class MainPage : ContentPage
+	{
+		public MainPage ()
 		{
-			InitializeComponent();
-            Detail = new NavigationPage(new MainPageDetail());
-		}
-
-        private void ScheduleButton_OnClicked(object sender, EventArgs e)
-        {
-            Detail = new NavigationPage(new SchedulePage());
-            IsPresented = false;
+			InitializeComponent ();
         }
 
-        private void SettingsButton_OnClicked(object sender, EventArgs e)
+        protected override void OnAppearing()
         {
-            Detail = new NavigationPage(new SettingsPage());
-            IsPresented = false;
-        }
-
-        private void BackButton_OnClicked(object sender, EventArgs e)
-        {
-            Detail = new NavigationPage(new MainPageDetail());
-            IsPresented = false;
+            base.OnAppearing();
+            BindingContext = new MainPageViewModel();
         }
     }
 }
