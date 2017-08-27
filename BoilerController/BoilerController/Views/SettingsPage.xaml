@@ -14,7 +14,7 @@
 
     <TableView Intent="Settings" Margin="10">
         <TableRoot>
-            <TableSection Title="Server Address">
+            <TableSection Title="Server">
                 <EntryCell Label="Address" Keyboard="Url" Placeholder="IP or Hostname" Text="{Binding ServerAddress, Mode=TwoWay}" LabelColor="Black"/>
                 <EntryCell Keyboard="Numeric" Label="Port" Placeholder="Server Port" Text="{Binding ServerPort, Mode=TwoWay}" LabelColor="Black"/>
             </TableSection>

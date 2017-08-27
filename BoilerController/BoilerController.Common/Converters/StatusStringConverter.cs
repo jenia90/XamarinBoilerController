@@ -16,7 +16,7 @@ namespace BoilerController.Common.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return false;
+            return (string)value == "On";
         }
     }
 }

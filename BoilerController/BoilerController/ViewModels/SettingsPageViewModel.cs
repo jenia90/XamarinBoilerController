@@ -72,6 +72,7 @@ namespace BoilerController.ViewModels
             NetworkHandler.BaseUrl = _serverAddress + ":" + _serverPort;
             Settings.ServerAddress = NetworkHandler.BaseUrl;
             Settings.Username = Username;
+
             if (_isPassChanged)
             {
                 Settings.Password = Convert.ToBase64String(Encoding.UTF8.GetBytes(Password));

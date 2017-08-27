@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:BoilerController.ViewModels"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             x:Class="BoilerController.Views.NewSchedulePage">
+    <ContentPage.BindingContext>
+        <viewModels:NewScheduleViewModel/>
+    </ContentPage.BindingContext>
+    
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="One-Time" Icon="Assets/OneTimeIcon.png" Command="{Binding SetTimerCommand}" CommandParameter="settime"/>
+        <ToolbarItem Text="Daily" Icon="Assets/RecurringIcon.png" Command="{Binding SetTimerCommand}" CommandParameter="addcron" />
+    </ContentPage.ToolbarItems>
+    
+    <ContentPage.Content>
+        <StackLayout Margin="10" Grid.Row="0" Grid.RowSpan="1" Orientation="Vertical">
+            <StackLayout Orientation="Horizontal">
+                <Label VerticalOptions="Center" Text="Start date:" />
+                <controls:ExtendedDatePicker VerticalOptions="Center" Date="{Binding OnDate, Mode=TwoWay}" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label VerticalOptions="Center" Text="Start time:" />
+                <controls:ExtendedTimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label VerticalOptions="Center" Text="Duration:" />
+                <Picker VerticalOptions="Center" ItemsSource="{Binding Durations}" 
+                                    SelectedIndex="{Binding SelectedDuration, Mode=TwoWay}"/>
+            </StackLayout>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <controls:CheckBox Grid.Column="0" DefaultText="{Binding Days[0].Day}" Checked="{Binding Days[0].IsSelected, Mode=TwoWay}"/>
+                <controls:CheckBox Grid.Column="1" DefaultText="{Binding Days[1].Day}" Checked="{Binding Days[1].IsSelected, Mode=TwoWay}"/>
+                <controls:CheckBox Grid.Column="2" DefaultText="{Binding Days[2].Day}" Checked="{Binding Days[2].IsSelected, Mode=TwoWay}"/>
+                <controls:CheckBox Grid.Column="3" DefaultText="{Binding Days[3].Day}" Checked="{Binding Days[3].IsSelected, Mode=TwoWay}"/>
+                <controls:CheckBox Grid.Column="4" DefaultText="{Binding Days[4].Day}" Checked="{Binding Days[4].IsSelected, Mode=TwoWay}"/>
+                <controls:CheckBox Grid.Column="5" DefaultText="{Binding Days[5].Day}" Checked="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
+                <controls:CheckBox Grid.Column="6" DefaultText="{Binding Days[6].Day}" Checked="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
+            </Grid>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

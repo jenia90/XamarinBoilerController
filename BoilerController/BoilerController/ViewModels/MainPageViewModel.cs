@@ -123,11 +123,12 @@ namespace BoilerController.ViewModels
             try
             {
                 var response = await NetworkHandler.GetResponseTask("getstate?dev=17");
-                if (response == null)
+                if (response == null || !response.IsSuccessStatusCode)
                 {
                     IsConnectedToServer = false;
                     return;
                 }
+
                 var content = await response.Content.ReadAsStringAsync();
                 var data = JsonConvert.DeserializeAnonymousType(content, new
                 {
@@ -140,24 +141,22 @@ namespace BoilerController.ViewModels
                     case "On":
                         StatColor = Color.Green;
                         IsConnectedToServer = true;
-                        _isToggled = true;
+                        IsToggled = true;
                         OnSince = DateTime.Parse(data.on_since).ToString("HH:mm");
                         break;
                     case "Off":
                         StatColor = Color.Red;
                         IsConnectedToServer = true;
-                        _isToggled = false;
+                        IsToggled = false;
                         OnSince = "";
                         break;
                     default:
                         IsConnectedToServer = false;
-                        _isToggled = false;
+                        IsToggled = false;
                         StatColor = Color.DarkGray;
                         throw new Exception("Server Unreachable");
 
                 }
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsToggled"));
             }
             catch (Exception e)
             {

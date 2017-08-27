@@ -7,6 +7,6 @@
     <TabbedPage.Children>
         <views:MainPage Title="Main"/>
         <views:SchedulePage Title="Schedule"/>
-        <views:SettingsPage Icon="Assets/SettingsIcon.png"/>
+        <views:SettingsPage Title="Settings"/>
     </TabbedPage.Children>
 </TabbedPage>

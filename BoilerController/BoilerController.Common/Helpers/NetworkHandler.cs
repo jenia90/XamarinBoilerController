@@ -19,29 +19,35 @@ namespace BoilerController.Common.Helpers
         /// <param name="method">HTTP method to use</param>
         /// <returns>HttpResponseMessage which was received from the server</returns>
         public static async Task<HttpResponseMessage> GetResponseTask(string request, string json = "",
-            string method = "GET")
+                                                                      string method = "GET")
         {
             HttpResponseMessage response;
             string requestUrl = "http://" + BaseUrl + "/api/";
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = 
+                client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.Username + ":")) + Settings.Password);
+                var uri = new Uri(requestUrl + request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 switch (method)
                 {
                     case "GET":
-                        response = await client.GetAsync(new Uri(requestUrl + request));
+                        response = await client.GetAsync(uri);
                         break;
                     case "POST":
                         client.DefaultRequestHeaders.Accept.Add(
                             new MediaTypeWithQualityHeaderValue("application/json"));
-                        response = await client.PostAsync(new Uri(requestUrl + request),
-                            new StringContent(json, Encoding.UTF8, "application/json"));
+                        response = await client.PostAsync(uri, content);
+                        break;
+                    case "PUT":
+                        client.DefaultRequestHeaders.Accept.Add(
+                            new MediaTypeWithQualityHeaderValue("application/json"));
+                        response = await client.PutAsync(uri, content);
                         break;
                     case "DELETE":
-                        response = await client.DeleteAsync(new Uri(requestUrl + request));
+                        response = await client.DeleteAsync(uri);
                         break;
                     default:
                         response = new HttpResponseMessage(HttpStatusCode.BadRequest);
