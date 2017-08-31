@@ -45,8 +45,6 @@
                FontSize="72" />
             <Switch Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
                 IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}"/>
-
-
         </Grid>
     </ContentPage.Content>
 </ContentPage>

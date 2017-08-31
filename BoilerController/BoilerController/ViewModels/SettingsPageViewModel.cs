@@ -13,8 +13,7 @@ namespace BoilerController.ViewModels
         private string _serverPort;
         private string _username;
         private string _password;
-
-        private bool _isPassChanged = false;
+        private bool _isPassChanged;
 
         public SettingsPageViewModel()
         {

@@ -53,13 +53,28 @@ namespace BoilerController.ViewModels
             }
         }
 
+        public Job SelectedJob { get; set; }
+
         #endregion
 
         #region Commands
 
         public ICommand GetTimesCommand => new Command(GetTimes);
+
+        public ICommand RemoveSelectedCommand => new Command(() => {
+            if (SelectedJob == null)
+                Application.Current.MainPage.DisplayAlert("Error", "Please select a job to remove first.", "Dismiss");
+            else
+                RemoveItem(SelectedJob.Id);
+        });
+
         public ICommand DeleteCommand => new Command<int>(RemoveItem);
-        public ICommand AddNewCommand => new Command(ShowAddEvent);
+
+        public ICommand AddNewCommand => new Command(async () =>
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new NewSchedulePage());
+            GetTimes();
+        });
 
         #endregion
 
@@ -78,6 +93,16 @@ namespace BoilerController.ViewModels
 
                 // Get the list of jobs from the server
                 var response = await NetworkHandler.GetResponseTask("gettimes");
+                if (!response.IsSuccessStatusCode)
+                {
+                    var res = await Application.Current.MainPage.DisplayAlert("Error Occured", 
+                        "Unable to get times from the server. Makes sure your settings are correct.\nDo you want to proceed to settings page?", "Ok", "Dismiss");
+                    if (res)
+                    {
+                        await Application.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SettingsPage()));
+                    }
+                    return;
+                }
                 var job = await response.Content.ReadAsStringAsync();
 
                 // Deserialize the jobs list and updat the Jobs collection
@@ -87,14 +112,24 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                await App.Current.MainPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
+                await Application.Current.MainPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
             }
             finally { IsRefreshing = false; }
         }
 
-        // Removes the selected item
+        /// <summary>
+        /// Removes the tapped item
+        /// </summary>
+        /// <param name="id">Id of the item to remove</param>
         private async void RemoveItem(int id)
         {
+            var res = await Application.Current.MainPage.DisplayAlert("Warning!",
+                "Are you sure you want to remove this job?", "Yes", "No");
+            if (!res)
+            {
+                return;
+            }
+
             try
             {
                 var response = await NetworkHandler.GetResponseTask("remove?id=" + id, method: "DELETE");
@@ -103,14 +138,8 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                await App.CurrentPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
+                await Application.Current.MainPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
             }
-        }
-
-        private async void ShowAddEvent()
-        {
-            await App.Current.MainPage.Navigation.PushAsync(new NewSchedulePage());
-            GetTimes();
         }
 
         #endregion

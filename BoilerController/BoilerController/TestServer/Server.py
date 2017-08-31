@@ -1,20 +1,18 @@
 #!/usr/bin/python3
 
 from flask import Flask, request
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import sqlite3
-import RPi.GPIO as GPIO
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 from logging.handlers import RotatingFileHandler
 import base64
-from LcdHelper import LcdHelper
+
+from DeviceManager import DeviceManager
 
 DT_FORMAT = "%Y-%m-%d %H:%M"
 
-ON_STATE = '1'
-OFF_STATE = '0'
 
 ID_IDX = 0
 PIN_IDX = 1
@@ -22,6 +20,9 @@ START_IDX = 3
 END_IDX = 2
 TYPE_IDX = 4
 DAYS_IDX = 5
+
+ON_STATE = '1'
+OFF_STATE = '0'
 
 BOILER_PIN = 17
 HEATER_STATUS_PIN = 23
@@ -43,15 +44,10 @@ scheduler = BackgroundScheduler()
 log = None
 app = Flask(__name__)
 db = sqlite3.connect(DATABASE)
-lcd = LcdHelper()
-
-
-OnState = GPIO.HIGH
-OffState = GPIO.LOW
-pins = {BOILER_PIN: {'name': 'Boiler', 'state': OffState}}
-
-lastStart = ""
-nextEnd = ''
+boiler = DeviceManager('Boiler',
+                       BOILER_PIN,
+                       HEATER_STATUS_PIN,
+                       RELAY_STATUS_PIN)
 
 
 def is_auth(creds):
@@ -70,62 +66,6 @@ def is_auth(creds):
     return len(curs.fetchall()) > 0
 
 
-def manual_override(channel):
-    start = datetime.now()
-    end = datetime.now() + timedelta(hours=2)
-    state = GPIO.input(channel)
-
-    global lastStart
-    global nextEnd
-    if state == OffState:
-        pins[17]['state'] = OnState
-        add_scheduled_job('datetime', start, end)
-        nextEnd = str(end)
-        lastStart = str(datetime.now())
-        lcd.print_text('Active Since:\n' + lastStart)
-    elif state == OnState:
-        pins[17]['state'] = OffState
-        scheduler.remove_job(nextEnd)
-        lcd.print_text('Last Active:\n' + datetime.now().strftime(DT_FORMAT))
-
-    GPIO.output(17, pins[17]['state'])
-
-
-def setup_gpio():
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
-    GPIO.setup(17, GPIO.OUT)
-    GPIO.setup(HEATER_STATUS_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.output(17, GPIO.LOW)
-    GPIO.add_event_detect(HEATER_STATUS_PIN, GPIO.BOTH,
-                          callback=manual_override, bouncetime=300)
-
-
-def add_scheduled_job(type, start, end, days=''):
-    if type == 'datetime':
-        if datetime.now() < start:  # add start of future job
-            scheduler.add_job(set_state, 'date', id=str(start),
-                              run_date=start,
-                              misfire_grace_time=60,
-                              args=[ON_STATE, start, end])
-        # add future end
-        scheduler.add_job(set_state, 'date', id=str(end),
-                          run_date=end,
-                          args=[OFF_STATE, start, end],
-                          misfire_grace_time=60)
-    elif type == 'cron':
-        scheduler.add_job(set_state, 'cron', id=str(start),
-                          hour=start.hour, minute=start.minute,
-                          day_of_week=days,
-                          misfire_grace_time=60,
-                          args=[ON_STATE, start, end])
-        scheduler.add_job(set_state, 'cron', id=str(end),
-                          hour=end.hour, minute=end.minute,
-                          day_of_week=days,
-                          args=[OFF_STATE, start, end],
-                          misfire_grace_time=60)
-
-
 def get_jobs_from_db():
     cur_hour = datetime.now().hour
     cur_min = datetime.now().minute
@@ -139,10 +79,11 @@ def get_jobs_from_db():
                 remove_job_from_db(job[ID_IDX])
                 continue
 
-            add_scheduled_job(job[TYPE_IDX], start, end, job[DAYS_IDX])
+            boiler.add_scheduled_job(job[TYPE_IDX], start, end,
+                                   job[DAYS_IDX])
             if end.hour >= cur_hour >= start.hour and \
                                     end.minute > cur_min >= start.minute:
-                set_state(ON_STATE, start, end)
+                boiler.set_state(ON_STATE, start, end)
     except sqlite3.DatabaseError as e:
         print(e)
 
@@ -179,43 +120,14 @@ def delete_item():
     except sqlite3.DatabaseError as e:
         print(e)
 
-    try:
-        scheduler.remove_job(job_id=start + ':00')
-        scheduler.remove_job(job_id=end + ':00')
-    except Exception as e:
-        print(e)
+    boiler.remove_job(start, end)
 
     start = datetime.strptime(start, DT_FORMAT)
     end = datetime.strptime(end, DT_FORMAT)
-    if end > datetime.now() > start and pins[17]['state'] == OnState:
-        set_state(OFF_STATE)
+    if end > datetime.now() > start and boiler.get_state():
+        boiler.set_state(OFF_STATE)
 
     return 'OK', 200
-
-
-def set_state(state=None, start=datetime.now(),
-              end=datetime.now() + timedelta(hours=2)):
-    """
-    Sets desired state
-    :param state: desired state string
-    :param start: if scheduled job then initial start time; blank otherwise
-    :param end: end time of scheduled job
-    :return:
-    """
-    global lastStart, nextEnd
-    if state == ON_STATE:
-
-        pins[17]['state'] = OnState
-        nextEnd = str(end)
-        lastStart = str(start)
-        lcd.print_text('Active Since:\n' + lastStart)
-    elif state == OFF_STATE or state is None:
-        pins[17]['state'] = OffState
-        lcd.print_text('Last Active:\n' + datetime.now().strftime(DT_FORMAT))
-        lastStart = ''
-        nextEnd = ''
-
-    GPIO.output(17, pins[17]['state'])
 
 
 @app.route('/api/settime', methods=['POST'])
@@ -243,7 +155,7 @@ def set_time():
             db.commit()
             start = datetime.strptime(start, DT_FORMAT)
             end = datetime.strptime(end, DT_FORMAT)
-            add_scheduled_job(sched_type, start, end)
+            boiler.add_scheduled_job(sched_type, start, end)
         except Exception as e:
             db.commit()
             print(e)
@@ -282,7 +194,7 @@ def add_cron_job():
             db.commit()
             jobstart = datetime.strptime(start, DT_FORMAT)
             jobend = datetime.strptime(end, DT_FORMAT)
-            add_scheduled_job(sched_type, jobstart, jobend, days)
+            boiler.add_scheduled_job(sched_type, jobstart, jobend, days)
         except Exception as e:
             db.commit()
             print(e)
@@ -317,7 +229,7 @@ def get_times():
 
         lst.append({'ID'   : q[ID_IDX],
                     'pin'  : q[PIN_IDX],
-                    'dev'  : pins[q[PIN_IDX]]['name'],
+                    'dev'  : boiler.get_name(),
                     'start': q[START_IDX],
                     'end'  : q[END_IDX],
                     'type' : q[TYPE_IDX],
@@ -337,27 +249,21 @@ def remote_set_state():
     num = int(request.args['dev'])
     state = request.args['state']
 
-    start = datetime.now()
-    end = datetime.now() + timedelta(hours=2)
-
-    global lastStart
-    global nextEnd
-
-    if state == ON_STATE:
-        pins[num]['state'] = OnState
-        add_scheduled_job('datetime', start, end)
-        nextEnd = str(end)
-        lastStart = str(datetime.now())
-        lcd.print_text('Active since:\n' + lastStart)
-    elif state == OFF_STATE:
-        pins[num]['state'] = OffState
-        scheduler.remove_job(nextEnd)
-        lcd.print_text('Last Active:\n' + datetime.now().strftime(DT_FORMAT))
-        lastStart = ''
+    if boiler.set_state(state):
+        return 'OK', 200
+    # if state == ON_STATE:
+    #     pins[num]['state'] = OnState
+    #     add_scheduled_job('datetime', start, end)
+    #     nextEnd = str(end)
+    #     lastStart = str(datetime.now())
+    #     lcd.print_text('Active since:\n' + lastStart)
+    # elif state == OFF_STATE:
+    #     pins[num]['state'] = OffState
+    #     scheduler.remove_job(nextEnd)
+    #     lcd.print_text('Last Active:\n' + datetime.now().strftime(DT_FORMAT))
+    #     lastStart = ''
     else:
         return 'BAD', 500
-    GPIO.output(num, pins[num]['state'])
-    return 'OK', 200
 
 
 @app.route('/api/getstate')
@@ -373,19 +279,16 @@ def remote_get_state():
     if num is None:
         return 'BAD', 500
 
-    if pins[num]['state'] == OnState:
-        return json.dumps({'state': 'On', 'on_since': lastStart})
+    if boiler.get_state():
+        return json.dumps({'state': 'On', 'on_since': boiler.lastStart})
     return json.dumps({'state': 'Off', 'on_since': None})
 
 
 def run_server():
-    setup_gpio()
-    lcd.print_text('Server Running!')
+    # boiler.print_to_scree('Server Running!')
     get_jobs_from_db()
-    scheduler.start()
     app.run(host='0.0.0.0')
-    set_state(OFF_STATE)
-    GPIO.cleanup()
+    boiler.set_state(OFF_STATE)
     db.close()
 
 

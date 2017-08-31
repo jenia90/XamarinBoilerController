@@ -46,6 +46,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Assets\AddNewJobIcon.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\RefreshIcon.png" />
     <None Include="$(MSBuildThisFileDirectory)TestServer\boiler.db" />
     <None Include="$(MSBuildThisFileDirectory)TestServer\LcdHelper.py" />
     <None Include="$(MSBuildThisFileDirectory)TestServer\Server.py" />
@@ -69,10 +71,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)Assets\SettingsIcon.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\DiscardIcon.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\OneTimeIcon.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\RecurringIcon.png" />
-    <Content Include="$(MSBuildThisFileDirectory)Assets\RefreshIcon.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\SaveIcon.png" />
   </ItemGroup>
   <ItemGroup>

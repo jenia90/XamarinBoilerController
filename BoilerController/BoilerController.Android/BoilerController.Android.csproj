@@ -168,11 +168,23 @@
   <ItemGroup>
     <AndroidResource Include="Resources\Drawable\OneTimeIcon.png" />
     <AndroidResource Include="Resources\Drawable\RecurringIcon.png" />
-    <AndroidResource Include="Resources\Drawable\RefreshIcon.png" />
     <AndroidResource Include="Resources\Drawable\SaveIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\Drawable\SettingsIcon.png" />
+    <AndroidResource Include="Resources\Drawable\DiscardIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\AddNewJobIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\RefreshIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Drawable\drawable-hdpi\" />
+    <Folder Include="Resources\Drawable\drawable-mdpi\" />
+    <Folder Include="Resources\Drawable\drawable-xhdpi\" />
+    <Folder Include="Resources\Drawable\drawable-xxhdpi\" />
+    <Folder Include="Resources\Drawable\drawable-xxxhdpi\" />
   </ItemGroup>
   <Import Project="..\BoilerController\BoilerController.projitems" Label="Shared" Condition="Exists('..\BoilerController\BoilerController.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

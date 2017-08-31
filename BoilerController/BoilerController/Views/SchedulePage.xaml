@@ -10,15 +10,18 @@
     </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems >
-        <ToolbarItem Text="Add New" Icon="Assets/RecurringIcon.png" Command="{Binding AddNewCommand}"/>
-        <ToolbarItem Text="Get Times" Icon="Assets/RefreshIcon.png" Command="{Binding GetTimesCommand}" />
+        <ToolbarItem Text="Refresh Times" Icon="Assets/RefreshIcon.png" Command="{Binding GetTimesCommand}" />
+        <ToolbarItem Text="Add New" Icon="Assets/AddNewJobIcon.png" Command="{Binding AddNewCommand}"/>
+        <ToolbarItem Text="Remove Selected" Icon="Assets/DiscardIcon.png" Command="{Binding RemoveSelectedCommand}"/>
     </ContentPage.ToolbarItems>
 
     <ContentPage.Content>
         <ListView Margin="10" ItemsSource="{Binding Jobs}"
                           IsPullToRefreshEnabled="True"
                           IsRefreshing="{Binding IsRefreshing}"
-                          RefreshCommand="{Binding GetTimesCommand}" VerticalOptions="FillAndExpand"
+                          RefreshCommand="{Binding GetTimesCommand}"
+                          SelectedItem="{Binding SelectedJob, Mode=OneWayToSource}"
+                          VerticalOptions="FillAndExpand"
                           HasUnevenRows="True" Header="Current Schedule">
 
             <ListView.HeaderTemplate>

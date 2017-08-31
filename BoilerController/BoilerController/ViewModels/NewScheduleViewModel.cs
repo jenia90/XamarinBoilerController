@@ -16,8 +16,8 @@ namespace BoilerController.ViewModels
     {
         #region Member Fields
 
-        private DateTime _onDate = DateTime.Now;
-        private TimeSpan _onTime = DateTime.Now.TimeOfDay;
+        private DateTime _onDate;
+        private TimeSpan _onTime;
         private int _selectedDuration;
         private ObservableCollection<WeekDay> _days;
 
@@ -27,6 +27,9 @@ namespace BoilerController.ViewModels
 
         public NewScheduleViewModel()
         {
+            _onTime = DateTime.Now.TimeOfDay;
+            _onDate = DateTime.Now.Date;
+
             Durations = new ObservableCollection<string>
             {
                 "15 mins",
@@ -59,10 +62,10 @@ namespace BoilerController.ViewModels
             get => _onDate;
             set
             {
-                if (value <= DateTime.Now)
+                if (value <= DateTime.Now.Date)
                 {
-                    App.CurrentPage.DisplayAlert("Error", "Start date cannot be in the past", "Dismiss");
-                    OnDate = DateTime.Now;
+                    Application.Current.MainPage.DisplayAlert("Error", "Start date cannot be in the past", "Dismiss");
+                    OnDate = DateTime.Now.Date;
                     return;
                 }
                 _onDate = value;
@@ -77,7 +80,7 @@ namespace BoilerController.ViewModels
             {
                 if (value <= DateTime.Today.TimeOfDay)
                 {
-                    App.CurrentPage.DisplayAlert("Error", "Start time cannot be in the past", "Dismiss");
+                    Application.Current.MainPage.DisplayAlert("Error", "Start time cannot be in the past", "Dismiss");
                     OnTime = DateTime.Now.TimeOfDay;
                     return;
                 }
@@ -112,6 +115,7 @@ namespace BoilerController.ViewModels
         #region Commands
 
         public ICommand SetTimerCommand => new Command<string>(SetTimer);
+        public ICommand DiscardCommand => new Command(NavigateBack);
 
         #endregion
 
@@ -132,7 +136,7 @@ namespace BoilerController.ViewModels
                 // Check if the command is daily schedule in which case check that some days were selected
                 if (type == "addcron" && days.Count == 0)
                 {
-                    await App.CurrentPage.DisplayAlert("Error Occured", "No days for recurring schedule selected.",
+                    await App.Current.MainPage.DisplayAlert("Error Occured", "No days for recurring schedule selected.",
                         "Dismiss");
                     return;
                 }
@@ -157,13 +161,18 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                await App.CurrentPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
+                await Application.Current.MainPage.DisplayAlert("Error Occured", e.Message, "Dismiss");
             }
             finally
             {
-                await App.Current.MainPage.Navigation.PopAsync();
+                NavigateBack();
             }
-        } 
+        }
+
+        private async void NavigateBack()
+        {
+            await Application.Current.MainPage.Navigation.PopAsync();
+        }
 
         #endregion
 

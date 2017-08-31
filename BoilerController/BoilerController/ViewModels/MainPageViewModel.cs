@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Windows.Input;
 using BoilerController.Common.Helpers;
+using BoilerController.Views;
 using Newtonsoft.Json;
 using Xamarin.Forms;
 
@@ -99,19 +101,15 @@ namespace BoilerController.ViewModels
         /// </summary>
         private async void SwitchStatus(bool state)
         {
-            switch (state)
+            if (state)
             {
-                case true:
-                    {
-                        await NetworkHandler.GetResponseTask("setstate?dev=17&state=1");
-                    }
-                    break;
-                case false:
-                    {
-                        await NetworkHandler.GetResponseTask("setstate?dev=17&state=0");
-                    }
-                    break;
+                await NetworkHandler.GetResponseTask("setstate?dev=17&state=1");
             }
+            else
+            {
+                await NetworkHandler.GetResponseTask("setstate?dev=17&state=0");
+            }
+            
             UpdateProps();
         }
 
@@ -126,7 +124,7 @@ namespace BoilerController.ViewModels
                 if (response == null || !response.IsSuccessStatusCode)
                 {
                     IsConnectedToServer = false;
-                    return;
+                    throw new HttpRequestException("Unable to connect to server.");
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
@@ -160,8 +158,12 @@ namespace BoilerController.ViewModels
             }
             catch (Exception e)
             {
-                await App.Current.MainPage.Navigation.PushAsync(new Views.SettingsPage());
-                //await App.CurrentPage.DisplayAlert("Server Unreachable", "Unable to connect to server", "Dismiss");
+                var res = await Application.Current.MainPage.DisplayAlert("Error Occured",
+                    "Unable to get status from the server. Makes sure your settings are correct.\nDo you want to proceed to settings page?", "Ok", "Dismiss");
+                if (res)
+                {
+                    await Application.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SettingsPage()));
+                }
             }
         }
 

@@ -3,6 +3,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:BoilerController.ViewModels"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
              x:Class="BoilerController.Views.SettingsPage" Title="Settings">
     <ContentPage.BindingContext>
         <viewModels:SettingsPageViewModel/>
@@ -12,21 +13,39 @@
         <ToolbarItem Text="Save" Command="{Binding SaveCommand}" Icon="Assets/SaveIcon.png"/>
     </ContentPage.ToolbarItems>
 
-    <TableView Intent="Settings" Margin="10">
-        <TableRoot>
+    <controls:ExtendedTableView Intent="Settings" HasUnevenRows="True">
+        <TableRoot Title="Connections Settings">
             <TableSection Title="Server">
-                <EntryCell Label="Address" Keyboard="Url" Placeholder="IP or Hostname" Text="{Binding ServerAddress, Mode=TwoWay}" LabelColor="Black"/>
-                <EntryCell Keyboard="Numeric" Label="Port" Placeholder="Server Port" Text="{Binding ServerPort, Mode=TwoWay}" LabelColor="Black"/>
+                <EntryCell Label="Address: " Keyboard="Url" Placeholder="IP or Hostname" Text="{Binding ServerAddress, Mode=TwoWay}" LabelColor="Black"/>
+                <EntryCell Keyboard="Numeric" Label="Port: " Placeholder="Server port" Text="{Binding ServerPort, Mode=TwoWay}" LabelColor="Black"/>
             </TableSection>
             <TableSection Title="Credentials">
-                <EntryCell Keyboard="Email" Label="Username" LabelColor="Black" Placeholder="Enter username here" Text="{Binding Username, Mode=TwoWay}"/>
+                <EntryCell Keyboard="Email" 
+                           Label="Username: " 
+                           LabelColor="Black" 
+                           Placeholder="Enter username here" 
+                           Text="{Binding Username, Mode=TwoWay}"/>
                 <ViewCell>
-                    <StackLayout Orientation="Vertical">
-                        <Label Text="Password"/>
-                        <Entry IsPassword="True" Placeholder="Enter password here" Text="{Binding Password, Mode=TwoWay}"/>
+                    <StackLayout>
+                        
+                        <StackLayout.Margin>
+                            <OnPlatform x:TypeArguments="Thickness" Android="15,0,0,0"/>
+                        </StackLayout.Margin>
+
+                        <StackLayout.Orientation>
+                            <OnPlatform x:TypeArguments="StackOrientation" Android="Horizontal" WinPhone="Vertical" iOS="Horizontal"/>
+                        </StackLayout.Orientation>
+                        
+                        <Label Text="Password: "
+                               TextColor="Black"
+                               VerticalOptions="Center"/>
+                        <Entry IsPassword="True"
+                               Placeholder="Enter password here" 
+                               Text="{Binding Password, Mode=TwoWay}"
+                               HorizontalOptions="FillAndExpand"/>
                     </StackLayout>
                 </ViewCell>
             </TableSection>
         </TableRoot>
-    </TableView>
+    </controls:ExtendedTableView>
 </ContentPage>
