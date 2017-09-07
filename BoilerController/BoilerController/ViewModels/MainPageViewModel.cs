@@ -167,8 +167,9 @@ namespace BoilerController.ViewModels
             }
         }
 
+        #endregion
+
         public event PropertyChangedEventHandler PropertyChanged;
     }
 
-    #endregion
 }

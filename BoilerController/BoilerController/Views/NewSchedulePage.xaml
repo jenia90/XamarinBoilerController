@@ -9,9 +9,30 @@
     </ContentPage.BindingContext>
     
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="One-Time" Icon="Assets/OneTimeIcon.png" Command="{Binding SetTimerCommand}" CommandParameter="settime"/>
-        <ToolbarItem Text="Daily" Icon="Assets/RecurringIcon.png" Command="{Binding SetTimerCommand}" CommandParameter="addcron" />
-        <ToolbarItem Text="Discard" Icon="Assets/DiscardIcon.png" Command="{Binding DiscardCommand}"/>
+        <ToolbarItem Text="One-Time" Command="{Binding SetTimerCommand}" CommandParameter="settime">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="OneTimeIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/OneTimeIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
+        <ToolbarItem Text="Daily" Command="{Binding SetTimerCommand}" CommandParameter="addcron">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="RecurringIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/RecurringIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
+        <ToolbarItem Text="Discard" Command="{Binding DiscardCommand}">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="DiscardIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/DiscardIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
     
     <ContentPage.Content>

@@ -10,7 +10,14 @@
     </ContentPage.BindingContext>
     
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Save" Command="{Binding SaveCommand}" Icon="Assets/SaveIcon.png"/>
+        <ToolbarItem Text="Save" Command="{Binding SaveCommand}">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="SaveIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/SaveIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
 
     <controls:ExtendedTableView Intent="Settings" HasUnevenRows="True">
@@ -27,13 +34,18 @@
                            Text="{Binding Username, Mode=TwoWay}"/>
                 <ViewCell>
                     <StackLayout>
-                        
+
                         <StackLayout.Margin>
-                            <OnPlatform x:TypeArguments="Thickness" Android="15,0,0,0"/>
+                            <OnPlatform x:TypeArguments="Thickness">
+                                <On Platform="Android, iOS" Value="15,0,0,0"/>
+                            </OnPlatform>
                         </StackLayout.Margin>
 
                         <StackLayout.Orientation>
-                            <OnPlatform x:TypeArguments="StackOrientation" Android="Horizontal" WinPhone="Vertical" iOS="Horizontal"/>
+                            <OnPlatform x:TypeArguments="StackOrientation">
+                                <On Platform="Android, iOS" Value="Horizontal"/>
+                                <On Platform="WinPhone, Windows" Value="Vertical"/>
+                            </OnPlatform>
                         </StackLayout.Orientation>
                         
                         <Label Text="Password: "

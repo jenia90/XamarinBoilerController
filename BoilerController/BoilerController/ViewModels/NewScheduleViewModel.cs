@@ -12,17 +12,8 @@ using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
 {
-    class NewScheduleViewModel : INotifyPropertyChanged
+    internal class NewScheduleViewModel : INotifyPropertyChanged
     {
-        #region Member Fields
-
-        private DateTime _onDate;
-        private TimeSpan _onTime;
-        private int _selectedDuration;
-        private ObservableCollection<WeekDay> _days;
-
-        #endregion
-
         #region ctor
 
         public NewScheduleViewModel()
@@ -42,7 +33,7 @@ namespace BoilerController.ViewModels
                 "2 hours"
             };
 
-            Days = new ObservableCollection<WeekDay>
+            _days = new ObservableCollection<WeekDay>
             {
                 new WeekDay {Day = "Sun", IsSelected = false},
                 new WeekDay {Day = "Mon", IsSelected = false},
@@ -56,7 +47,19 @@ namespace BoilerController.ViewModels
 
         #endregion
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #region Member Fields
+
+        private DateTime _onDate;
+        private TimeSpan _onTime;
+        private int _selectedDuration;
+        private ObservableCollection<WeekDay> _days;
+
+        #endregion
+
         #region Props
+
         public DateTime OnDate
         {
             get => _onDate;
@@ -110,6 +113,7 @@ namespace BoilerController.ViewModels
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedDuration"));
             }
         }
+
         #endregion
 
         #region Commands
@@ -120,23 +124,23 @@ namespace BoilerController.ViewModels
         #endregion
 
         #region Methods
-        
+
         /// <summary>
-        /// Adds a scheduled activation
+        ///     Adds a scheduled activation
         /// </summary>
         /// <param name="type">type of schedule: </param>
         private async void SetTimer(string type)
         {
             try
             {
-
                 // Get list of selected days
-                List<string> days = new List<string>(from weekDay in Days where weekDay.IsSelected select weekDay.Day);
+                var days = new List<string>(from weekDay in Days where weekDay.IsSelected select weekDay.Day);
 
                 // Check if the command is daily schedule in which case check that some days were selected
                 if (type == "addcron" && days.Count == 0)
                 {
-                    await App.Current.MainPage.DisplayAlert("Error Occured", "No days for recurring schedule selected.",
+                    await Application.Current.MainPage.DisplayAlert("Error Occured",
+                        "No days for recurring schedule selected.",
                         "Dismiss");
                     return;
                 }
@@ -155,9 +159,7 @@ namespace BoilerController.ViewModels
                 // Send the request to the server and in case of success update the listview
                 var response = await NetworkHandler.GetResponseTask(type, job, "POST");
                 if (!response.IsSuccessStatusCode)
-                {
                     throw new HttpRequestException("Remote operation failed.");
-                }
             }
             catch (Exception e)
             {
@@ -169,13 +171,11 @@ namespace BoilerController.ViewModels
             }
         }
 
-        private async void NavigateBack()
-        {
-            await Application.Current.MainPage.Navigation.PopAsync();
-        }
+        /// <summary>
+        /// Navigates to the previous page.
+        /// </summary>
+        private async void NavigateBack() => await Application.Current.MainPage.Navigation.PopAsync();
 
         #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

@@ -9,7 +9,14 @@
         <viewModels:MainPageViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Refresh" Icon="Assets/RefreshIcon.png" Command="{Binding GetStatusCommand}"/>
+        <ToolbarItem Text="Refresh" Command="{Binding GetStatusCommand}">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="RefreshIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/RefreshIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid>

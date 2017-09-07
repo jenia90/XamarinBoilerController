@@ -10,9 +10,30 @@
     </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems >
-        <ToolbarItem Text="Refresh Times" Icon="Assets/RefreshIcon.png" Command="{Binding GetTimesCommand}" />
-        <ToolbarItem Text="Add New" Icon="Assets/AddNewJobIcon.png" Command="{Binding AddNewCommand}"/>
-        <ToolbarItem Text="Remove Selected" Icon="Assets/DiscardIcon.png" Command="{Binding RemoveSelectedCommand}"/>
+        <ToolbarItem Text="Refresh Times" Command="{Binding GetTimesCommand}">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="RefreshIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/RefreshIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
+        <ToolbarItem Text="Add New" Command="{Binding AddNewCommand}">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="AddNewJobIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/AddNewJobIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
+        <ToolbarItem Text="Remove Selected" Command="{Binding RemoveSelectedCommand}">
+            <ToolbarItem.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="DiscardIcon.png"/>
+                    <On Platform="Android, WinPhone, Windows" Value="Assets/DiscardIcon.png"/>
+                </OnPlatform>
+            </ToolbarItem.Icon>
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
 
     <ContentPage.Content>
