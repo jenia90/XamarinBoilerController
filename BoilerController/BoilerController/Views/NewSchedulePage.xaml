@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:BoilerController.ViewModels"
              xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:local="clr-namespace:BoilerController.Common.Controls;assembly=BoilerController.Common"
              x:Class="BoilerController.Views.NewSchedulePage">
     <ContentPage.BindingContext>
         <viewModels:NewScheduleViewModel/>
@@ -61,7 +62,7 @@
                 </TableSection>
                 <TableSection Title="Choose Days:">
                     <ViewCell>
-                        <Grid>
+                        <!--<Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition />
@@ -81,7 +82,16 @@
                             <controls:CheckBox Grid.Column="1" Grid.Row="0" DefaultText="{Binding Days[4].Day}" Checked="{Binding Days[4].IsSelected, Mode=TwoWay}"/>
                             <controls:CheckBox Grid.Column="1" Grid.Row="1" DefaultText="{Binding Days[5].Day}" Checked="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
                             <controls:CheckBox Grid.Column="1" Grid.Row="2" DefaultText="{Binding Days[6].Day}" Checked="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
-                        </Grid>
+                        </Grid>-->
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                            <local:SelectableLabel Text="{Binding Days[0].Day}" IsSelected="{Binding Days[0].IsSelected, Mode=TwoWay}"/>
+                            <local:SelectableLabel Text="{Binding Days[1].Day}" IsSelected="{Binding Days[1].IsSelected, Mode=TwoWay}"/>
+                            <local:SelectableLabel Text="{Binding Days[2].Day}" IsSelected="{Binding Days[2].IsSelected, Mode=TwoWay}"/>
+                            <local:SelectableLabel Text="{Binding Days[3].Day}" IsSelected="{Binding Days[3].IsSelected, Mode=TwoWay}"/>
+                            <local:SelectableLabel Text="{Binding Days[4].Day}" IsSelected="{Binding Days[4].IsSelected, Mode=TwoWay}"/>
+                            <local:SelectableLabel Text="{Binding Days[5].Day}" IsSelected="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
+                            <local:SelectableLabel Text="{Binding Days[6].Day}" IsSelected="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
+                        </StackLayout>
                     </ViewCell>
                 </TableSection>
             </TableRoot>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Windows.Input;
 using BoilerController.Common.Helpers;
+using WeekDay = BoilerController.Common.Models.WeekDay;
 using BoilerController.Models;
 using Newtonsoft.Json;
 using Xamarin.Forms;

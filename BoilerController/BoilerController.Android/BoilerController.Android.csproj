@@ -134,6 +134,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Renderers\DaySelectionRenderer.cs" />
+    <Compile Include="Renderers\SelectableLabelRenderer.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
