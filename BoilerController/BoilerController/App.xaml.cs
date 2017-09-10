@@ -1,4 +1,5 @@
 ﻿using BoilerController.Common.Helpers;
+using BoilerController.Common.Services;
 using BoilerController.Views;
 using Xamarin.Forms;
 
@@ -6,10 +7,11 @@ namespace BoilerController
 {
 	public partial class App : Application
 	{
+        public static BoilerServerService Boiler;
 		public App ()
 		{
 			InitializeComponent();
-
+		    Boiler = new BoilerServerService(17);
             MainPage = new NavigationPage(new TabbedMainPage());
 		}
 

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Net.Http;
 using System.Windows.Input;
-using BoilerController.Common.Helpers;
 using BoilerController.Views;
-using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
@@ -101,14 +98,7 @@ namespace BoilerController.ViewModels
         /// </summary>
         private async void SwitchStatus(bool state)
         {
-            if (state)
-            {
-                await NetworkHandler.GetResponseTask("setstate?dev=17&state=1");
-            }
-            else
-            {
-                await NetworkHandler.GetResponseTask("setstate?dev=17&state=0");
-            }
+            await App.Boiler.SetStateTask(state);
             
             UpdateProps();
         }
@@ -120,27 +110,15 @@ namespace BoilerController.ViewModels
         {
             try
             {
-                var response = await NetworkHandler.GetResponseTask("getstate?dev=17");
-                if (response == null || !response.IsSuccessStatusCode)
-                {
-                    IsConnectedToServer = false;
-                    throw new HttpRequestException("Unable to connect to server.");
-                }
+                var data = await App.Boiler.GetCurrentStateTask();
 
-                var content = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeAnonymousType(content, new
-                {
-                    on_since = "",
-                    state = ""
-                });
-
-                switch(data.state)
+                switch(data.State)
                 {
                     case "On":
                         StatColor = Color.Green;
                         IsConnectedToServer = true;
                         IsToggled = true;
-                        OnSince = DateTime.Parse(data.on_since).ToString("HH:mm");
+                        OnSince = DateTime.Parse(data.OnSince).ToString("HH:mm");
                         break;
                     case "Off":
                         StatColor = Color.Red;

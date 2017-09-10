@@ -2,10 +2,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-using BoilerController.Common.Helpers;
-using BoilerController.Models;
+using BoilerController.Common.Models;
 using BoilerController.Views;
-using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
@@ -89,23 +87,19 @@ namespace BoilerController.ViewModels
                     IsRefreshing = true;
 
                 // Get the list of jobs from the server
-                var response = await NetworkHandler.GetResponseTask("gettimes");
-                if (!response.IsSuccessStatusCode)
-                {
-                    var res = await Application.Current.MainPage.DisplayAlert("Error Occured", 
-                        "Unable to get times from the server. Makes sure your settings are correct.\nDo you want to proceed to settings page?", "Ok", "Dismiss");
-                    if (res)
-                    {
-                        await Application.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SettingsPage()));
-                    }
-                    return;
-                }
-                var job = await response.Content.ReadAsStringAsync();
-
-                // Deserialize the jobs list and updat the Jobs collection
-                Jobs = JsonConvert.DeserializeObject<ObservableCollection<Job>>(job);
+                Jobs = await App.Boiler.GetJobsTask();
 
                 IsRefreshing = false;
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                var res = await Application.Current.MainPage.DisplayAlert("Error Occured",
+                    "Unable to get times from the server. Makes sure your settings are correct.\nDo you want to proceed to settings page?",
+                    "Ok", "Dismiss");
+                if (res)
+                {
+                    await Application.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SettingsPage()));
+                }
             }
             catch (Exception e)
             {
@@ -129,8 +123,8 @@ namespace BoilerController.ViewModels
 
             try
             {
-                var response = await NetworkHandler.GetResponseTask("remove?id=" + id, method: "DELETE");
-                if (await response.Content.ReadAsStringAsync() == "OK")
+                res = await App.Boiler.RemoveJobTask(id);
+                if (res)
                     GetTimes();
             }
             catch (Exception e)

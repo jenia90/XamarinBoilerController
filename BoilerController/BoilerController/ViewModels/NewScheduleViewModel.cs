@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Net.Http;
 using System.Windows.Input;
-using BoilerController.Common.Helpers;
-using WeekDay = BoilerController.Common.Models.WeekDay;
-using BoilerController.Models;
-using Newtonsoft.Json;
+using BoilerController.Common.Models;
 using Xamarin.Forms;
 
 namespace BoilerController.ViewModels
@@ -134,6 +130,9 @@ namespace BoilerController.ViewModels
         {
             try
             {
+                var start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}";
+                var end = DateTime.Parse($@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}").Add(
+                    new TimeSpan(0, SelectedDuration * 15 + 15, 0)).ToString("yyyy-MM-dd HH:mm");
                 // Get list of selected days
                 var days = new List<string>(from weekDay in Days where weekDay.IsSelected select weekDay.Day);
 
@@ -146,21 +145,7 @@ namespace BoilerController.ViewModels
                     return;
                 }
 
-                // Serealize a new Job object
-                var job = JsonConvert.SerializeObject(new Job
-                {
-                    Pin = 17,
-                    Start = $@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}",
-                    End = DateTime.Parse($@"{OnDate:yyyy-MM-dd} {OnTime:hh\:mm}").Add(
-                        new TimeSpan(0, SelectedDuration * 15 + 15, 0)).ToString("yyyy-MM-dd HH:mm"),
-                    Type = type == "settime" ? "datetime" : "cron",
-                    DaysList = days
-                });
-
-                // Send the request to the server and in case of success update the listview
-                var response = await NetworkHandler.GetResponseTask(type, job, "POST");
-                if (!response.IsSuccessStatusCode)
-                    throw new HttpRequestException("Remote operation failed.");
+                await App.Boiler.SetScheduledJobTask(start, end, type == "settime" ? "datetime" : "cron", days);
             }
             catch (Exception e)
             {
