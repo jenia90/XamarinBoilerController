@@ -83,7 +83,7 @@
                             <controls:CheckBox Grid.Column="1" Grid.Row="1" DefaultText="{Binding Days[5].Day}" Checked="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
                             <controls:CheckBox Grid.Column="1" Grid.Row="2" DefaultText="{Binding Days[6].Day}" Checked="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
                         </Grid>-->
-                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                        <!--<StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                             <local:SelectableLabel Text="{Binding Days[0].Day}" IsSelected="{Binding Days[0].IsSelected, Mode=TwoWay}"/>
                             <local:SelectableLabel Text="{Binding Days[1].Day}" IsSelected="{Binding Days[1].IsSelected, Mode=TwoWay}"/>
                             <local:SelectableLabel Text="{Binding Days[2].Day}" IsSelected="{Binding Days[2].IsSelected, Mode=TwoWay}"/>
@@ -91,7 +91,8 @@
                             <local:SelectableLabel Text="{Binding Days[4].Day}" IsSelected="{Binding Days[4].IsSelected, Mode=TwoWay}"/>
                             <local:SelectableLabel Text="{Binding Days[5].Day}" IsSelected="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
                             <local:SelectableLabel Text="{Binding Days[6].Day}" IsSelected="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
-                        </StackLayout>
+                        </StackLayout>-->
+                        <local:DaySelection Days="{Binding Days}"/>
                     </ViewCell>
                 </TableSection>
             </TableRoot>
