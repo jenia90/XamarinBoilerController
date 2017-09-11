@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BoilerController.Common.Controls.DaySelection">
   <ContentView.Content>
-        <StackLayout Orientation="Vertical" x:Name="DayLayout"></StackLayout>
+        <StackLayout Orientation="Vertical" x:Name="DayLayout">
+            
+        </StackLayout>
   </ContentView.Content>
 </ContentView>

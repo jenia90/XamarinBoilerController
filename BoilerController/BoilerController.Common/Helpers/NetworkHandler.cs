@@ -21,13 +21,18 @@ namespace BoilerController.Common.Helpers
         public static async Task<HttpResponseMessage> GetResponseTask(string request, string json = "",
                                                                       string method = "GET")
         {
+            string GetCreds()
+            {
+                return Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.Username + ":")) + Settings.Password;
+            }
+
             HttpResponseMessage response;
             string requestUrl = "http://" + BaseUrl + "/api/";
 
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.Username + ":")) + Settings.Password);
+                    new AuthenticationHeaderValue("Basic", GetCreds());
                 var uri = new Uri(requestUrl + request);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 

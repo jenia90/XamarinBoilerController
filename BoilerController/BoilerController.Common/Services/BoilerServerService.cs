@@ -43,14 +43,7 @@ namespace BoilerController.Common.Services
         /// <param name="state">true for 'on'; false for 'off'</param>
         public async Task SetStateTask(bool state)
         {
-            if (state)
-            {
-                await NetworkHandler.GetResponseTask("setstate?dev=" + _devPin + "&state=1");
-            }
-            else
-            {
-                await NetworkHandler.GetResponseTask("setstate?dev=" + _devPin + "&state=0");
-            }
+            await NetworkHandler.GetResponseTask("setstate?dev=" + _devPin + "&state=" + (state ? "1" : "0"));
         }
 
         /// <summary>
@@ -78,9 +71,7 @@ namespace BoilerController.Common.Services
         public async Task<bool> RemoveJobTask(int id)
         {
             var response = await NetworkHandler.GetResponseTask("remove?id=" + id, method: "DELETE");
-            if (await response.Content.ReadAsStringAsync() == "OK")
-                return true;
-            return false;
+            return await response.Content.ReadAsStringAsync() == "OK";
         }
 
         /// <summary>
