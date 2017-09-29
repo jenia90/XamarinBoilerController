@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:BoilerController.Common.Controls;assembly=BoilerController.Common"
              x:Class="BoilerController.Common.Controls.DaySelection">
-  <ContentView.Content>
-        <Frame CornerRadius="5" OutlineColor="Gray">
+    <ContentView.Content>
+        <Frame CornerRadius="0" OutlineColor="Gray">
             <StackLayout Orientation="Horizontal" x:Name="DayLayout">
                 <controls:SelectableLabel Text="{Binding Days[0].Day}" IsSelected="{Binding Days[0].IsSelected, Mode=TwoWay}"/>
                 <controls:SelectableLabel Text="{Binding Days[1].Day}" IsSelected="{Binding Days[1].IsSelected, Mode=TwoWay}"/>

@@ -35,11 +35,11 @@
             </ToolbarItem.Icon>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
-    
+
     <ContentPage.Content>
-        <controls:ExtendedTableView Intent="Form" Margin="10,0,10,0" VerticalOptions="StartAndExpand" HasUnevenRows="True">
+        <controls:ExtendedTableView Intent="Form" Margin="5,0,5,0" VerticalOptions="FillAndExpand" HasUnevenRows="True">
             <TableRoot Title="New Schedule">
-                <TableSection Title="Choose Time:">
+                <TableSection Title="Choose Activation Time:">
                     <ViewCell>
                         <StackLayout Orientation="Horizontal">
                             <Label VerticalOptions="Center" Text="Start date:" />
@@ -47,51 +47,21 @@
                         </StackLayout>
                     </ViewCell>
                     <ViewCell>
-                        <StackLayout Orientation="Horizontal">
+                        <StackLayout Orientation="Horizontal" Margin="0,5,0,0">
                             <Label VerticalOptions="Center" Text="Start time:" />
                             <controls:ExtendedTimePicker VerticalOptions="Center" Time="{Binding OnTime, Mode=TwoWay}" />
                         </StackLayout>
                     </ViewCell>
                     <ViewCell>
-                        <StackLayout Orientation="Horizontal">
+                        <StackLayout Orientation="Horizontal" Margin="0,5,0,0">
                             <Label VerticalOptions="Center" Text="Duration:" />
-                            <Picker VerticalOptions="Center" ItemsSource="{Binding Durations}" 
+                            <Picker VerticalOptions="Center" Margin="6,0,0,0" ItemsSource="{Binding Durations}" 
                                     SelectedIndex="{Binding SelectedDuration, Mode=TwoWay}"/>
                         </StackLayout>
                     </ViewCell>
                 </TableSection>
-                <TableSection Title="Choose Days:">
+                <TableSection Title="Select Days:">
                     <ViewCell>
-                        <!--<Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-
-                            <controls:CheckBox Grid.Column="0" Grid.Row="0" DefaultText="{Binding Days[0].Day}" Checked="{Binding Days[0].IsSelected, Mode=TwoWay}"/>
-                            <controls:CheckBox Grid.Column="0" Grid.Row="1" DefaultText="{Binding Days[1].Day}" Checked="{Binding Days[1].IsSelected, Mode=TwoWay}"/>
-                            <controls:CheckBox Grid.Column="0" Grid.Row="2" DefaultText="{Binding Days[2].Day}" Checked="{Binding Days[2].IsSelected, Mode=TwoWay}"/>
-                            <controls:CheckBox Grid.Column="0" Grid.Row="3" DefaultText="{Binding Days[3].Day}" Checked="{Binding Days[3].IsSelected, Mode=TwoWay}"/>
-                            <controls:CheckBox Grid.Column="1" Grid.Row="0" DefaultText="{Binding Days[4].Day}" Checked="{Binding Days[4].IsSelected, Mode=TwoWay}"/>
-                            <controls:CheckBox Grid.Column="1" Grid.Row="1" DefaultText="{Binding Days[5].Day}" Checked="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
-                            <controls:CheckBox Grid.Column="1" Grid.Row="2" DefaultText="{Binding Days[6].Day}" Checked="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
-                        </Grid>-->
-                        <!--<StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                            <local:SelectableLabel Text="{Binding Days[0].Day}" IsSelected="{Binding Days[0].IsSelected, Mode=TwoWay}"/>
-                            <local:SelectableLabel Text="{Binding Days[1].Day}" IsSelected="{Binding Days[1].IsSelected, Mode=TwoWay}"/>
-                            <local:SelectableLabel Text="{Binding Days[2].Day}" IsSelected="{Binding Days[2].IsSelected, Mode=TwoWay}"/>
-                            <local:SelectableLabel Text="{Binding Days[3].Day}" IsSelected="{Binding Days[3].IsSelected, Mode=TwoWay}"/>
-                            <local:SelectableLabel Text="{Binding Days[4].Day}" IsSelected="{Binding Days[4].IsSelected, Mode=TwoWay}"/>
-                            <local:SelectableLabel Text="{Binding Days[5].Day}" IsSelected="{Binding Days[5].IsSelected, Mode=TwoWay}"/>
-                            <local:SelectableLabel Text="{Binding Days[6].Day}" IsSelected="{Binding Days[6].IsSelected, Mode=TwoWay}"/>
-                        </StackLayout>-->
                         <local:DaySelection Days="{Binding Days}"/>
                     </ViewCell>
                 </TableSection>

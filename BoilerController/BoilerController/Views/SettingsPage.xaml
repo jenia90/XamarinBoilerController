@@ -50,6 +50,7 @@
                         
                         <Label Text="Password: "
                                TextColor="Black"
+                               FontAttributes="Bold"
                                VerticalOptions="Center"/>
                         <Entry IsPassword="True"
                                Placeholder="Enter password here" 
