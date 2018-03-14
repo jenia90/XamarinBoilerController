@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
 using BoilerController.Views;
@@ -23,7 +24,8 @@ namespace BoilerController.ViewModels
         private Page _detail;
         private bool _isToggled;
         private bool _isConnectedToServer;
-        private string _onSince = "";
+        private string _activityString = "";
+        private int _durationIndex = 7;
 
         #endregion
 
@@ -39,13 +41,13 @@ namespace BoilerController.ViewModels
             }
         }
 
-        public string OnSince
+        public string ActivityString
         {
-            get => _onSince;
+            get => _activityString;
             set
             {
-                _onSince = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("OnSince"));
+                _activityString = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ActivityString"));
             }
         }
 
@@ -83,6 +85,16 @@ namespace BoilerController.ViewModels
             }
         }
 
+        public int DurationIndex
+        {
+            get => _durationIndex;
+            set
+            {
+                _durationIndex = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DurationIndex"));
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -98,7 +110,15 @@ namespace BoilerController.ViewModels
         /// </summary>
         private async void SwitchStatus(bool state)
         {
-            await App.Boiler.SetStateTask(state);
+            if (DurationIndex == 7)
+            {
+                await App.Boiler.SetStateTask(state);
+            }
+            else
+            {
+                await App.Boiler.SetScheduledJobTask(DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
+                    DateTime.Now.AddMinutes(DurationIndex * 15 + 15).ToString("yyyy-MM-dd HH:mm"), "datetime", new List<string>());
+            }
             
             UpdateProps();
         }
@@ -111,33 +131,37 @@ namespace BoilerController.ViewModels
             try
             {
                 var data = await App.Boiler.GetCurrentStateTask();
+                var activityTime = data.OnSince.Length > 0 ? 
+                    DateTime.Parse(data.OnSince).ToString("HH:mm") : "Never";
 
-                switch(data.State)
+                switch (data.State)
                 {
                     case "On":
                         StatColor = Color.Green;
                         IsConnectedToServer = true;
                         IsToggled = true;
-                        OnSince = DateTime.Parse(data.OnSince).ToString("HH:mm");
+                        ActivityString = "On Since:\n" + activityTime;
                         break;
                     case "Off":
                         StatColor = Color.Red;
                         IsConnectedToServer = true;
                         IsToggled = false;
-                        OnSince = "";
+                        ActivityString = "Last Active:\n" + activityTime;
                         break;
                     default:
                         IsConnectedToServer = false;
                         IsToggled = false;
                         StatColor = Color.DarkGray;
+                        ActivityString = "Unable to connect";
                         throw new Exception("Server Unreachable");
 
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 var res = await Application.Current.MainPage.DisplayAlert("Error Occured",
-                    "Unable to get status from the server. Makes sure your settings are correct.\nDo you want to proceed to settings page?", "Ok", "Dismiss");
+                    "Unable to get status from the server. Makes sure your settings are correct.\n" +
+                    "Do you want to proceed to settings page?", "Ok", "Dismiss");
                 if (res)
                 {
                     await Application.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SettingsPage()));

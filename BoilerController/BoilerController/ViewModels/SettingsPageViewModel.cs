@@ -8,7 +8,8 @@ using Xamarin.Forms;
 namespace BoilerController.ViewModels
 {
     internal class SettingsPageViewModel : INotifyPropertyChanged
-    {
+    { 
+        private const int AddressIdx = 0, PortIdx = 1;
         private string _serverAddress;
         private string _serverPort;
         private string _username;
@@ -18,8 +19,8 @@ namespace BoilerController.ViewModels
         public SettingsPageViewModel()
         {
             var baseUrl = NetworkHandler.BaseUrl.Split(':');
-            ServerAddress = baseUrl[0];
-            ServerPort = baseUrl[1];
+            ServerAddress = baseUrl[AddressIdx];
+            ServerPort = baseUrl[PortIdx];
             _username = Settings.Username;
             _password = Settings.Password;
         }

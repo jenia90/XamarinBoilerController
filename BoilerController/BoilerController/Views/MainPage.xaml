@@ -25,7 +25,8 @@
                 <RowDefinition Height="20*" />
                 <RowDefinition Height="20*" />
                 <RowDefinition Height="20*" />
-                <RowDefinition Height="20*" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="10*" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -46,11 +47,23 @@
                     </Label.Text>
                 </Label>
             </StackLayout>
-            <Label IsVisible="{Binding IsToggled}" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+            <Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
                Grid.RowSpan="2" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand"
-               HorizontalOptions="CenterAndExpand" Text="{Binding Path=OnSince, StringFormat='On Since: {0}'}"
+               HorizontalOptions="CenterAndExpand" Text="{Binding Path=ActivityString}"
                FontSize="72" />
-            <Switch Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
+            <Picker Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" SelectedIndex="{Binding DurationIndex}">
+                <Picker.Items>
+                    <x:String>15 mins</x:String>
+                    <x:String>30 mins</x:String>
+                    <x:String>45 mins</x:String>
+                    <x:String>1 hour</x:String>
+                    <x:String>1 hour 15 mins</x:String>
+                    <x:String>1 hour 30 mins</x:String>
+                    <x:String>1 hour 45 mins</x:String>
+                    <x:String>Unlimited</x:String>
+                </Picker.Items>
+            </Picker>
+                <Switch Grid.Row="4" Grid.ColumnSpan="3" Grid.Column="0" HorizontalOptions="Center"
                 IsEnabled="{Binding IsConnectedToServer}" IsToggled="{Binding IsToggled}"/>
         </Grid>
     </ContentPage.Content>
