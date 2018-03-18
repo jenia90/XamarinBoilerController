@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BoilerController.Api.Contracts;
+﻿using BoilerController.Api.Contracts;
 using BoilerController.Api.Repository;
 using BoilerController.Api.Services;
+using BoilerController.Api.Services.Scheduler;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +59,11 @@ namespace BoilerController.Api.Extensions
         public static void ConfigureRepositoryWrapper(this IServiceCollection services)
         {
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+        }
+
+        public static void ConfigureScheduler(this IServiceCollection services)
+        {
+            services.AddSingleton<IScheduleManager, ScheduleManager>();
         }
     }
 }

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace BoilerController.Api.Contracts
+﻿namespace BoilerController.Api.Contracts
 {
-    interface ILoggerManager
+    public interface ILoggerManager
     {
         void LogInfo(string message);
         void LogWarn(string message);

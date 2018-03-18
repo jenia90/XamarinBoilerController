@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BoilerController.Api.Models
 {
     [Table("Job")]
     public class Job
+
     {
         [Key]
         [Column("JobId")]
@@ -32,7 +31,7 @@ namespace BoilerController.Api.Models
         [Column("Type")]
         public string Type { get; set; }
 
-        [Column("DayList")]
-        public IEnumerable<string> DaysList { get; set; }
+        [Column("DaysList")]
+        public IEnumerable<DayOfWeek> DaysList { get; set; }
     }
 }

@@ -14,6 +14,7 @@ WORKDIR /src/BoilerController.Api
 RUN dotnet restore -nowarn:msb3202,nu1503
 WORKDIR /src/BoilerController.Api
 COPY BoilerController.Api/ .
+RUN dotnet ef migrations add InitialCreate
 RUN dotnet build -c Release -o /app
 
 FROM build AS publish
