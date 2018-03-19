@@ -46,48 +46,23 @@ namespace BoilerController.Api.Services.Scheduler
             {
                 var id = Guid.NewGuid();
                 var deviceData = JsonConvert.SerializeObject(device);
-                ITrigger activationTrigger, deactivationTrigger;
 
-                // Create activation and deactivation jobs
-                var activationJob = JobBuilder.Create<DeviceJob>()
-                    .UsingJobData("state", true)
-                    .UsingJobData("deviceData", deviceData)
-                    .WithIdentity("Activate", id.ToString())
-                    .Build();
-                var deactivationJob = JobBuilder.Create<DeviceJob>()
-                    .UsingJobData("state", false)
-                    .UsingJobData("deviceData", deviceData)
-                    .WithIdentity("Deactivate", id.ToString())
-                    .Build();
+                KeyValuePair<IJobDetail, ITrigger> activateJobKey, deactivateJobKey;
 
                 // if days of week specified then set a cron job; otherwise set one time job
                 if (days.Length > 0)
                 {
-                    activationTrigger = TriggerBuilder.Create()
-                        .WithIdentity("Activate", id.ToString())
-                        .WithSchedule(CronScheduleBuilder
-                            .AtHourAndMinuteOnGivenDaysOfWeek(start.Hour, start.Minute, days))
-                        .Build();
-                    deactivationTrigger = TriggerBuilder.Create()
-                        .WithIdentity("Deactivate", id.ToString())
-                        .WithSchedule(CronScheduleBuilder
-                            .AtHourAndMinuteOnGivenDaysOfWeek(start.Hour, start.Minute, days))
-                        .Build();
+                    activateJobKey = CreateCronJob(id, deviceData, start, days, true);
+                    deactivateJobKey = CreateCronJob(id, deviceData, end, days, false);
                 }
                 else
                 {
-                    activationTrigger = TriggerBuilder.Create()
-                        .WithIdentity("Activate", id.ToString())
-                        .StartAt(start)
-                        .Build();
-                    deactivationTrigger = TriggerBuilder.Create()
-                        .WithIdentity("Deactivate", id.ToString())
-                        .StartAt(end)
-                        .Build();
+                    activateJobKey = CreateOneTimeJob(id, deviceData, start, true);
+                    deactivateJobKey = CreateOneTimeJob(id, deviceData, end, false);
                 }
 
-                _scheduler.ScheduleJob(activationJob, activationTrigger);
-                _scheduler.ScheduleJob(deactivationJob, deactivationTrigger);
+                _scheduler.ScheduleJob(activateJobKey.Key, activateJobKey.Value);
+                _scheduler.ScheduleJob(deactivateJobKey.Key, deactivateJobKey.Value);
 
                 _logger.LogInfo($"New job with ID {id} added");
 
@@ -116,6 +91,46 @@ namespace BoilerController.Api.Services.Scheduler
             {
                 _logger.LogError($"Couldn't find or delete jobs in group: {jobId}");
             }
+        }
+
+        private KeyValuePair<IJobDetail, ITrigger> CreateCronJob(Guid id, 
+            string deviceData, 
+            DateTime time,
+            DayOfWeek[] days, 
+            bool isActivate)
+        {
+            var type = isActivate ? "Activate" : "Deactivate";
+            var job = JobBuilder.Create<DeviceJob>()
+                .UsingJobData("state", isActivate)
+                .UsingJobData("deviceData", deviceData)
+                .WithIdentity(type, id.ToString())
+                .Build();
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity(type, id.ToString())
+                .WithSchedule(CronScheduleBuilder
+                    .AtHourAndMinuteOnGivenDaysOfWeek(time.Hour, time.Minute, days))
+                .Build();
+
+            return new KeyValuePair<IJobDetail, ITrigger>(job, trigger);
+        }
+
+        private KeyValuePair<IJobDetail, ITrigger> CreateOneTimeJob(Guid id,
+            string deviceData,
+            DateTime time,
+            bool isActivate)
+        {
+            var type = isActivate ? "Activate" : "Deactivate";
+            var job = JobBuilder.Create<DeviceJob>()
+                .UsingJobData("state", isActivate)
+                .UsingJobData("deviceData", deviceData)
+                .WithIdentity(type, id.ToString())
+                .Build();
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity("Activate", id.ToString())
+                .StartAt(time)
+                .Build();
+
+            return new KeyValuePair<IJobDetail, ITrigger>(job, trigger);
         }
     }
 }
