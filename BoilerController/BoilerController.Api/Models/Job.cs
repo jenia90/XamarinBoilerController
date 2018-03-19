@@ -13,10 +13,6 @@ namespace BoilerController.Api.Models
         [Column("JobId")]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "You must specify end time")]
-        [Column("End")]
-        public string End { get; set; }
-
         [Required(ErrorMessage = "You must specify device pin")]
         [Column("Pin")]
         public int Pin { get; set; }
@@ -26,7 +22,11 @@ namespace BoilerController.Api.Models
 
         [Required(ErrorMessage = "You must specify start time")]
         [Column("Start")]
-        public string Start { get; set; }
+        public DateTime Start { get; set; }
+
+        [Required(ErrorMessage = "You must specify end time")]
+        [Column("End")]
+        public DateTime End { get; set; }
 
         [Column("Type")]
         public string Type { get; set; }
