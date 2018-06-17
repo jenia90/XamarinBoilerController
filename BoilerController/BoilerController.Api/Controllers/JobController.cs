@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BoilerController.Api.Contracts;
-using BoilerController.Api.Devices;
 using BoilerController.Api.Extensions;
 using BoilerController.Api.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoilerController.Api.Controllers
 {
-    [Produces("application/json")]
     [Route("api/Job")]
     public class JobController : Controller
     {
@@ -71,7 +65,7 @@ namespace BoilerController.Api.Controllers
             {
                 if (job.IsObjectNull())
                 {
-                    _logger.LogError($"Job object sent from client is empty.");
+                    _logger.LogError($"Job object sent from client is null.");
                     return BadRequest($"Job object is null.");
                 }
 
@@ -100,7 +94,7 @@ namespace BoilerController.Api.Controllers
 
                 if (job.IsObjectNull())
                 {
-                    _logger.LogError($"Job object sent from client is empty.");
+                    _logger.LogError($"Job object sent from client is null.");
                     return BadRequest($"Job object is null.");
                 }
 

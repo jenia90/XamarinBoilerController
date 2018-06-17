@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BoilerController.Api.Contracts;
+using Microsoft.AspNetCore.Builder.Extensions;
 
 namespace BoilerController.Api.Models
 {
     [Table("Job")]
-    public class Job
+    public class Job : IEntity
 
     {
         [Key]
@@ -15,7 +17,7 @@ namespace BoilerController.Api.Models
 
         [Required(ErrorMessage = "You must specify device pin")]
         [Column("Pin")]
-        public int Pin { get; set; }
+        public Guid DeviceId { get; set; }
 
         [Column("DeviceName")]
         public string DeviceName { get; set; }
@@ -33,5 +35,6 @@ namespace BoilerController.Api.Models
 
         [Column("DaysList")]
         public IEnumerable<DayOfWeek> DaysList { get; set; }
+
     }
 }

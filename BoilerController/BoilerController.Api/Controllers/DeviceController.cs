@@ -1,12 +1,12 @@
 ﻿using System;
 using BoilerController.Api.Contracts;
-using BoilerController.Api.Devices;
 using BoilerController.Api.Extensions;
+using BoilerController.Api.Models.Devices;
+using BoilerController.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoilerController.Api.Controllers
 {
-    [Produces("application/json")]
     [Route("api/Device")]
     public class DeviceController : Controller
     {
@@ -57,36 +57,14 @@ namespace BoilerController.Api.Controllers
             }
         }
 
-        [HttpGet("{id}", Name = "DeviceByPin")]
-        public IActionResult GetDeviceById(int pin)
-        {
-            try
-            {
-                var device = _repoWrapper.Devices.GetDeviceByPin(pin);
-                if (device.IsEmptyObject())
-                {
-                    _logger.LogError($"Device at pin: {pin} couldn't be found.");
-                    return NotFound("No devices connected to that pin.");
-                }
-
-                _logger.LogInfo($"Returned device with id: {pin}");
-                return Ok(device);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Something went wrong in GetDeviceById action: {e.Message}");
-                return StatusCode(500, "Internal Server Error");
-            }
-        }
-
         [HttpPost]
-        public IActionResult CreateDevice([FromBody] IDevice device)
+        public IActionResult CreateDevice([FromBody] Device device)
         {
             try
             {
                 if (device.IsObjectNull())
                 {
-                    _logger.LogError($"Device object sent from client is empty.");
+                    _logger.LogError($"Device object sent from client is null.");
                     return BadRequest($"Device object is null.");
                 }
 
@@ -96,7 +74,7 @@ namespace BoilerController.Api.Controllers
                     return BadRequest($"Device object is invalid.");
                 }
 
-                _repoWrapper.Devices.CreateDevice(device);
+                _repoWrapper.Devices.CreateDevice(DeviceFactory.GetNewDevice(device));
                 return CreatedAtRoute("DeviceById", new { id = device.Id }, device);
             }
             catch (Exception e)
@@ -107,7 +85,7 @@ namespace BoilerController.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateDevice(Guid id, [FromBody] IDevice device)
+        public IActionResult UpdateDevice(Guid id, [FromBody] Device device)
         {
             try
             {

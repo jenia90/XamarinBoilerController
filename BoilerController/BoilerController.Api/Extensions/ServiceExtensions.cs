@@ -52,8 +52,8 @@ namespace BoilerController.Api.Extensions
         /// <param name="config">Congig containing the connection string.</param>
         public static void ConfigureMySqlContext(this IServiceCollection services, IConfiguration config)
         {
-            var connectionString = config["SQliteconnection:connectionString"];
-            services.AddDbContext<RepositoryContext>(o => o.UseSqlite(connectionString));
+            //var connectionString = config["SQliteconnection:connectionString"];
+            services.AddDbContext<RepositoryContext>(o => o.UseInMemoryDatabase("BoilerDB"));
         }
 
         public static void ConfigureRepositoryWrapper(this IServiceCollection services)

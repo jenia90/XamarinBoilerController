@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using BoilerController.Api.Contracts;
-using BoilerController.Api.Devices;
+using BoilerController.Api.Models.Devices;
 using Newtonsoft.Json;
 using Quartz;
 using Quartz.Impl;
@@ -40,7 +40,7 @@ namespace BoilerController.Api.Services.Scheduler
         /// <param name="end"></param>
         /// <param name="days"></param>
         /// <returns></returns>
-        public Guid AddJob(IDevice device, DateTime start, DateTime end, DayOfWeek[] days)
+        public Guid AddJob(Device device, DateTime start, DateTime end, DayOfWeek[] days)
         {
             try
             {

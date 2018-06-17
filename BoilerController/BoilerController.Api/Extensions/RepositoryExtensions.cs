@@ -1,6 +1,6 @@
 ﻿using BoilerController.Api.Contracts;
-using BoilerController.Api.Devices;
 using BoilerController.Api.Models;
+using BoilerController.Api.Models.Devices;
 
 namespace BoilerController.Api.Extensions
 {
@@ -17,7 +17,6 @@ namespace BoilerController.Api.Extensions
             dbJob.DaysList = job.DaysList;
             dbJob.DeviceName = job.DeviceName;
             dbJob.End = job.End;
-            dbJob.Pin = job.Pin;
             dbJob.Type = job.Type;
         }
 
@@ -26,7 +25,7 @@ namespace BoilerController.Api.Extensions
         /// </summary>
         /// <param name="dbDevice">DB device object</param>
         /// <param name="device">New device object</param>
-        public static void Map(this IDevice dbDevice, IDevice device)
+        public static void Map(this Device dbDevice, Device device)
         {
             dbDevice.DevicePin = device.DevicePin;
             dbDevice.DeviceName = device.DeviceName;

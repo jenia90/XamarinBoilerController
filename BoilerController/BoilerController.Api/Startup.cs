@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace BoilerController.Api
 {
@@ -15,7 +16,8 @@ namespace BoilerController.Api
     {
         public Startup(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
-            loggerFactory.ConfigureNLog(String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
+            //loggerFactory.ConfigureNLog(String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
+            NLog.LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
             Configuration = configuration;
         }
 
@@ -30,6 +32,10 @@ namespace BoilerController.Api
             services.ConfigureMySqlContext(Configuration);
             services.ConfigureRepositoryWrapper();
             services.ConfigureScheduler();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Boiler Controller API", Version = "v1" });
+            });
             services.AddMvc();
         }
 
@@ -62,6 +68,8 @@ namespace BoilerController.Api
             app.UseStaticFiles();
 
             app.UseMvc();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Boiler Controller API V1"); });
         }
     }
 }

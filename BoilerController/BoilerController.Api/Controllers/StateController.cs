@@ -1,13 +1,12 @@
 ﻿using System;
 using BoilerController.Api.Contracts;
-using BoilerController.Api.Devices;
 using BoilerController.Api.Extensions;
 using BoilerController.Api.Models;
+using BoilerController.Api.Models.Devices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoilerController.Api.Controllers
 {
-    [Produces("application/json")]
     [Route("api/state")]
     public class StateController : Controller
     {
@@ -18,28 +17,6 @@ namespace BoilerController.Api.Controllers
         {
             _logger = logger;
             _repoWrapper = repoWrapper;
-        }
-
-        [HttpGet("pin/{id}")]
-        public IActionResult GetStateByPin(int pin)
-        {
-            try
-            {
-                var device = _repoWrapper.Devices.GetDeviceByPin(pin);
-                if (device.IsEmptyObject())
-                {
-                    _logger.LogError($"Device at pin: {pin} couldn't be found.");
-                    return NotFound("Device connected to that pin couldn't be found.");
-                }
-
-                _logger.LogInfo($"Current state for device at: {pin}, returned.");
-                return Ok(device);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Something went wrong inside GetCurrentState action: {e.Message}");
-                return StatusCode(500, "Internal Server Error");
-            }
         }
 
         [HttpGet("id/{id}")]
@@ -81,13 +58,11 @@ namespace BoilerController.Api.Controllers
                     return BadRequest($"State object is invalid.");
                 }
 
-                var device = (state.DeviceId != Guid.Empty
-                    ? _repoWrapper.Devices.GetDeviceById(state.DeviceId)
-                    : _repoWrapper.Devices.GetDeviceByPin(state.DevicePin)) as OutputDevice;
+                var device = _repoWrapper.Devices.GetDeviceById(state.DeviceId) as OutputDevice;
 
                 if (device.IsEmptyObject())
                 {
-                    _logger.LogError($"Device with ID: {state.DeviceId} or at pin: {state.DevicePin} couldn't be found.");
+                    _logger.LogError($"Device with ID: {state.DeviceId} couldn't be found.");
                     return NotFound("Device with such ID couldn't be found.");
                 }
 

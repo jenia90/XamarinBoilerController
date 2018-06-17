@@ -1,8 +1,7 @@
 ﻿using System;
 using BoilerController.Api.Contracts;
-using BoilerController.Api.Devices;
-using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Gpio;
+using BoilerController.Api.Extensions;
+using BoilerController.Api.Models.Devices;
 
 namespace BoilerController.Api.Services
 {
@@ -15,29 +14,28 @@ namespace BoilerController.Api.Services
         /// <summary>
         ///  Adds a new device to the collection
         /// </summary>
-        /// <param name="name">Human friendly name of the device</param>
-        /// <param name="pin">Pin the device is connected to</param>
-        /// <param name="type">Input/Output/PWM type</param>
+        /// <param name="modelDevice"></param>
         /// <returns>A newly created device object if there's no device connected to specified pin.
         /// Otherwise an existing device will be returned.</returns>
-        public static IDevice GetNewDevice(string name, int pin, DeviceType type)
+        public static Device GetNewDevice(Device modelDevice)
         {
-            IDevice device;
-            switch (type)
+            Device dev;
+            switch (modelDevice.Type)
             {
                 case DeviceType.Input:
-                    device = new OutputDevice { DeviceName = name, DevicePin = Pi.Gpio.Pins[pin] };
-                    device.DevicePin.PinMode = GpioPinDriveMode.Input;
-                    return device;
+                    dev = new InputDevice();
+                    break;
                 case DeviceType.Output:
-                    device = new OutputDevice {DeviceName = name, DevicePin = Pi.Gpio.Pins[pin]};
-                    device.DevicePin.PinMode = GpioPinDriveMode.Output;
-                    return device;
+                    dev = new OutputDevice();
+                    break;
                 case DeviceType.PWM:
                     return null; // TODO: Add Pwm device
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    throw new ArgumentOutOfRangeException(nameof(modelDevice.Type), modelDevice.Type, null);
             }
+
+            dev.Map(modelDevice);
+            return dev;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BoilerController.Api.Devices;
+using BoilerController.Api.Models.Devices;
 using Newtonsoft.Json;
 using Quartz;
 

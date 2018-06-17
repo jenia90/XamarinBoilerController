@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using BoilerController.Api.Devices;
+using BoilerController.Api.Models.Devices;
 
 namespace BoilerController.Api.Contracts
 {
-    public interface IDeviceRepository : IRepositoryBase<IDevice>
+    public interface IDeviceRepository : IRepositoryBase<Device>
     {
-        IEnumerable<IDevice> GetAllDevices();
-        IDevice GetDeviceById(Guid deviceId);
-        IDevice GetDeviceByPin(int pin);
-        void CreateDevice(IDevice device);
-        void UpdateDevice(IDevice dbDevice, IDevice device);
-        void DeleteDevice(IDevice device);
+        IEnumerable<Device> GetAllDevices();
+        Device GetDeviceById(Guid deviceId);
+        void CreateDevice(Device device);
+        void UpdateDevice(Device dbDevice, Device device);
+        void DeleteDevice(Device device);
     }
 }

@@ -1,29 +1,28 @@
 ﻿using System;
 using BoilerController.Api.Contracts;
-using BoilerController.Api.Devices;
 
 namespace BoilerController.Api.Extensions
 {
-    public static class DeviceExtensions
+    public static class EntityExtensions
     {
         /// <summary>
         /// Returns true if object is null
         /// </summary>
-        /// <param name="device">IDevice object</param>
+        /// <param name="entity">IEntity object</param>
         /// <returns>True if null; false otherwise</returns>
-        public static bool IsObjectNull(this IDevice device)
+        public static bool IsObjectNull(this IEntity entity)
         {
-            return device == null;
+            return entity == null;
         }
 
         /// <summary>
         /// Returns true if object is uninitialized
         /// </summary>
-        /// <param name="device">IDevice object</param>
+        /// <param name="entity">IEntity object</param>
         /// <returns>true if uninitialized; false otherwise</returns>
-        public static bool IsEmptyObject(this IDevice device)
+        public static bool IsEmptyObject(this IEntity entity)
         {
-            return device.Id == Guid.Empty;
+            return entity.Id == Guid.Empty;
         }
     }
 }

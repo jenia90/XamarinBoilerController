@@ -15,7 +15,7 @@ namespace BoilerController.Api.Repository
 
         public IEnumerable<Job> GetAllJobs()
         {
-            return FindAll().OrderBy(j => DateTime.Parse(j.Start));
+            return FindAll().OrderBy(j => j.Start);
         }
 
         public Job GetJobById(Guid jobId)
