@@ -1,6 +1,4 @@
-﻿using BoilerController.Api.Contracts;
-using BoilerController.Api.Models;
-using BoilerController.Api.Models.Devices;
+﻿using BoilerController.Api.Models;
 
 namespace BoilerController.Api.Extensions
 {

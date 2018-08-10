@@ -65,5 +65,10 @@ namespace BoilerController.Api.Extensions
         {
             services.AddSingleton<IScheduleManager, ScheduleManager>();
         }
+
+        public static void ConfigureDeviceService(this IServiceCollection services)
+        {
+            services.AddSingleton<IDeviceService, DeviceService>();
+        }
     }
 }

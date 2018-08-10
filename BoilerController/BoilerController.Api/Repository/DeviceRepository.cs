@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BoilerController.Api.Contracts;
 using BoilerController.Api.Extensions;
-using BoilerController.Api.Models.Devices;
+using BoilerController.Api.Models;
 
 namespace BoilerController.Api.Repository
 {

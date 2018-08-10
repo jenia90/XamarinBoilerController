@@ -43,6 +43,7 @@
     <Compile Include="Converters\ListToStringConverter.cs" />
     <Compile Include="Converters\StatusStringConverter.cs" />
     <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="Models\Device.cs" />
     <Compile Include="Models\Job.cs" />
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\WeekDay.cs" />

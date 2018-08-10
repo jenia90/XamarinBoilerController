@@ -332,3 +332,80 @@
 2018-06-18 00:07:41.4172 Info Adding target File Target[ownFile-web]
 2018-06-18 00:07:41.4172 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
 2018-06-18 00:07:41.4442 Info Found 42 configuration items
+2018-06-18 00:21:31.6828 Info Message Template Auto Format enabled
+2018-06-18 00:21:31.7859 Info Adding target File Target[allfile]
+2018-06-18 00:21:31.8456 Error Error parsing layout aspnet-request-url will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-request-url'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-18 00:21:31.8456 Error Error parsing layout aspnet-mvc-action will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-mvc-action'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-18 00:21:31.8456 Info Adding target File Target[ownFile-web]
+2018-06-18 00:21:31.8581 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
+2018-06-18 00:21:31.8755 Info Found 42 configuration items
+2018-06-18 00:34:23.0610 Info Message Template Auto Format enabled
+2018-06-18 00:34:23.1447 Info Adding target File Target[allfile]
+2018-06-18 00:34:23.1939 Error Error parsing layout aspnet-request-url will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-request-url'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-18 00:34:23.1939 Error Error parsing layout aspnet-mvc-action will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-mvc-action'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-18 00:34:23.1939 Info Adding target File Target[ownFile-web]
+2018-06-18 00:34:23.2043 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
+2018-06-18 00:34:23.2161 Info Found 42 configuration items
+2018-06-19 22:27:40.7082 Info Message Template Auto Format enabled
+2018-06-19 22:27:40.8429 Info Adding target File Target[allfile]
+2018-06-19 22:27:40.9580 Error Error parsing layout aspnet-request-url will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-request-url'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 22:27:40.9626 Error Error parsing layout aspnet-mvc-action will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-mvc-action'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 22:27:40.9626 Info Adding target File Target[ownFile-web]
+2018-06-19 22:27:40.9813 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
+2018-06-19 22:27:41.0013 Info Found 42 configuration items
+2018-06-19 23:45:02.9829 Info Message Template Auto Format enabled
+2018-06-19 23:45:03.0637 Info Adding target File Target[allfile]
+2018-06-19 23:45:03.1132 Error Error parsing layout aspnet-request-url will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-request-url'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 23:45:03.1152 Error Error parsing layout aspnet-mvc-action will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-mvc-action'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 23:45:03.1152 Info Adding target File Target[ownFile-web]
+2018-06-19 23:45:03.1152 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
+2018-06-19 23:45:03.1358 Info Found 42 configuration items
+2018-06-19 23:49:00.7086 Info Message Template Auto Format enabled
+2018-06-19 23:49:00.7874 Info Adding target File Target[allfile]
+2018-06-19 23:49:00.8337 Error Error parsing layout aspnet-request-url will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-request-url'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 23:49:00.8337 Error Error parsing layout aspnet-mvc-action will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-mvc-action'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 23:49:00.8337 Info Adding target File Target[ownFile-web]
+2018-06-19 23:49:00.8337 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
+2018-06-19 23:49:00.8570 Info Found 42 configuration items
+2018-06-19 23:56:21.0170 Info Message Template Auto Format enabled
+2018-06-19 23:56:21.1086 Info Adding target File Target[allfile]
+2018-06-19 23:56:21.1513 Error Error parsing layout aspnet-request-url will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-request-url'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 23:56:21.1622 Error Error parsing layout aspnet-mvc-action will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-mvc-action'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-19 23:56:21.1622 Info Adding target File Target[ownFile-web]
+2018-06-19 23:56:21.1622 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
+2018-06-19 23:56:21.1826 Info Found 42 configuration items
+2018-06-20 00:04:54.2514 Info Message Template Auto Format enabled
+2018-06-20 00:04:54.3412 Info Adding target File Target[allfile]
+2018-06-20 00:04:54.3895 Error Error parsing layout aspnet-request-url will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-request-url'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-20 00:04:54.3895 Error Error parsing layout aspnet-mvc-action will be ignored. Exception: System.ArgumentException: LayoutRenderer cannot be found: 'aspnet-mvc-action'. Is NLog.Web not included?
+   at NLog.Config.Factory`2.CreateInstance(String name)
+   at NLog.Layouts.LayoutParser.GetLayoutRenderer(ConfigurationItemFactory configurationItemFactory, String name)
+2018-06-20 00:04:54.3895 Info Adding target File Target[ownFile-web]
+2018-06-20 00:04:54.4014 Info Configured from an XML element in C:\Users\jenia\Source\Repos\XamarinBoilerController\BoilerController\BoilerController.Api/nlog.config...
+2018-06-20 00:04:54.4133 Info Found 42 configuration items

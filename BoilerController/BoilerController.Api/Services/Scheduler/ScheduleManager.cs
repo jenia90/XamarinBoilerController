@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using BoilerController.Api.Contracts;
-using BoilerController.Api.Models.Devices;
+using BoilerController.Api.Models;
 using Newtonsoft.Json;
 using Quartz;
 using Quartz.Impl;
@@ -16,11 +16,13 @@ namespace BoilerController.Api.Services.Scheduler
     public class ScheduleManager : IScheduleManager
     {
         private readonly ILoggerManager _logger;
+        private readonly IRepositoryWrapper _repoWrapper;
         private readonly IScheduler _scheduler;
 
-        public ScheduleManager(ILoggerManager logger)
+        public ScheduleManager(ILoggerManager logger, IRepositoryWrapper repoWrapper)
         {
             _logger = logger;
+            _repoWrapper = repoWrapper;
 
             // Initialize the scheduler
             var factory = new StdSchedulerFactory(new NameValueCollection
@@ -40,7 +42,7 @@ namespace BoilerController.Api.Services.Scheduler
         /// <param name="end"></param>
         /// <param name="days"></param>
         /// <returns></returns>
-        public Guid AddJob(Device device, DateTime start, DateTime end, DayOfWeek[] days)
+        public Guid AddJob(Device device, DateTime start, DateTime end, DayOfWeek[] days = null)
         {
             try
             {
@@ -50,7 +52,7 @@ namespace BoilerController.Api.Services.Scheduler
                 KeyValuePair<IJobDetail, ITrigger> activateJobKey, deactivateJobKey;
 
                 // if days of week specified then set a cron job; otherwise set one time job
-                if (days.Length > 0)
+                if (days != null && days.Length > 0)
                 {
                     activateJobKey = CreateCronJob(id, deviceData, start, days, true);
                     deactivateJobKey = CreateCronJob(id, deviceData, end, days, false);
@@ -93,7 +95,8 @@ namespace BoilerController.Api.Services.Scheduler
             }
         }
 
-        private KeyValuePair<IJobDetail, ITrigger> CreateCronJob(Guid id, 
+        private KeyValuePair<IJobDetail, ITrigger> CreateCronJob(
+            Guid id, 
             string deviceData, 
             DateTime time,
             DayOfWeek[] days, 
@@ -114,7 +117,8 @@ namespace BoilerController.Api.Services.Scheduler
             return new KeyValuePair<IJobDetail, ITrigger>(job, trigger);
         }
 
-        private KeyValuePair<IJobDetail, ITrigger> CreateOneTimeJob(Guid id,
+        private KeyValuePair<IJobDetail, ITrigger> CreateOneTimeJob(
+            Guid id,
             string deviceData,
             DateTime time,
             bool isActivate)

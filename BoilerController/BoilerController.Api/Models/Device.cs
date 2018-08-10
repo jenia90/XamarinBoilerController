@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BoilerController.Api.Contracts;
 
-namespace BoilerController.Api.Models.Devices
+namespace BoilerController.Api.Models
 {
     public enum DeviceType
     {
@@ -26,5 +27,7 @@ namespace BoilerController.Api.Models.Devices
         [Column("DevicePin")]
         public int DevicePin { get; set; }
         public bool State { get; set; }
+        [Column("Jobs")]
+        public IEnumerable<Job> Jobs { get; set; }
     }
 }

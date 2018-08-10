@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BoilerController.Api.Contracts;
 using BoilerController.Api.Extensions;
 using BoilerController.Api.Models;
@@ -75,8 +76,15 @@ namespace BoilerController.Api.Controllers
                     return BadRequest($"Job object is invalid.");
                 }
 
+                var device = _repoWrapper.Devices.GetDeviceById(job.DeviceId);
+                if (device.IsObjectNull())
+                {
+                    _logger.LogError($"Device with ID: {job.DeviceId} couldn't be found.");
+                    return NotFound("Device with such ID couldn't be found.");
+                }
+
+                job.Id = _scheduleManager.AddJob(device, job.Start, job.End, job.DaysList.ToArray());
                 _repoWrapper.Job.CreateJob(job);
-                //_scheduleManager.AddJob(new OutputDevice(), job.Start, job.End, job.DaysList.ToArray());
                 return CreatedAtRoute("JobById", new { id = job.Id }, job);
             }
             catch (Exception e)

@@ -1,5 +1,5 @@
 ﻿using System;
-using BoilerController.Api.Models.Devices;
+using BoilerController.Api.Models;
 
 namespace BoilerController.Api.Contracts
 {

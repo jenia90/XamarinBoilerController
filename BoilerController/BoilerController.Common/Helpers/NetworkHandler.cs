@@ -21,10 +21,8 @@ namespace BoilerController.Common.Helpers
         public static async Task<HttpResponseMessage> GetResponseTask(string request, string json = "",
                                                                       string method = "GET")
         {
-            string GetCreds()
-            {
-                return Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.Username + ":")) + Settings.Password;
-            }
+            string GetCreds() => 
+                Convert.ToBase64String(Encoding.UTF8.GetBytes(Settings.Username + ":")) + Settings.Password;
 
             HttpResponseMessage response;
             string requestUrl = "http://" + BaseUrl + "/api/";

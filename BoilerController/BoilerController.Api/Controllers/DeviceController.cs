@@ -1,7 +1,7 @@
 ﻿using System;
 using BoilerController.Api.Contracts;
 using BoilerController.Api.Extensions;
-using BoilerController.Api.Models.Devices;
+using BoilerController.Api.Models;
 using BoilerController.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -74,7 +74,7 @@ namespace BoilerController.Api.Controllers
                     return BadRequest($"Device object is invalid.");
                 }
 
-                _repoWrapper.Devices.CreateDevice(DeviceFactory.GetNewDevice(device));
+                _repoWrapper.Devices.CreateDevice(device);
                 return CreatedAtRoute("DeviceById", new { id = device.Id }, device);
             }
             catch (Exception e)

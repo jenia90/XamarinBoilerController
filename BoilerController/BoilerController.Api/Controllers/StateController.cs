@@ -2,7 +2,6 @@
 using BoilerController.Api.Contracts;
 using BoilerController.Api.Extensions;
 using BoilerController.Api.Models;
-using BoilerController.Api.Models.Devices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoilerController.Api.Controllers
@@ -58,7 +57,7 @@ namespace BoilerController.Api.Controllers
                     return BadRequest($"State object is invalid.");
                 }
 
-                var device = _repoWrapper.Devices.GetDeviceById(state.DeviceId) as OutputDevice;
+                var device = _repoWrapper.Devices.GetDeviceById(state.DeviceId) as Device;
 
                 if (device.IsEmptyObject())
                 {

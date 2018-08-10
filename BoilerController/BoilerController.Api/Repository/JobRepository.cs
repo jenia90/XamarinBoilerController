@@ -27,7 +27,7 @@ namespace BoilerController.Api.Repository
 
         public void CreateJob(Job job)
         {
-            job.Id = Guid.NewGuid();
+            if(job.Id == Guid.Empty) job.Id = Guid.NewGuid();
             Create(job);
             Save();
         }

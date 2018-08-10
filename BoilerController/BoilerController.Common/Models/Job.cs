@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Newtonsoft.Json;
 
@@ -8,15 +9,15 @@ namespace BoilerController.Common.Models
     {
 
         private string _end;
-        private int _pin;
+        private Guid _deviceId;
         private string _start;
-        private int _id;
+        private Guid _id;
         private string _type;
-        private IEnumerable<string> _daysList;
+        private IEnumerable<DayOfWeek> _daysList;
         private string _deviceName;
 
         [JsonProperty("id")]
-        public int Id
+        public Guid Id
         {
             get { return _id; }
             set
@@ -38,15 +39,15 @@ namespace BoilerController.Common.Models
             }
         }
 
-        [JsonProperty("pin")]
-        public int Pin
+        [JsonProperty("deviceid")]
+        public Guid DeviceId
         {
-            get => _pin;
+            get => _deviceId;
             set
             {
-                if (value == _pin) return;
-                _pin = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Pin"));
+                if (value == _deviceId) return;
+                _deviceId = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DeviceId"));
             }
         }
 

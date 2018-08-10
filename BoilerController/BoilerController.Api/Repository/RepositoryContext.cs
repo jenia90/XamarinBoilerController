@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BoilerController.Api.Contracts;
 using BoilerController.Api.Models;
-using BoilerController.Api.Models.Devices;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoilerController.Api.Repository
