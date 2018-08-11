@@ -2,7 +2,6 @@
 using BoilerController.Api.Contracts;
 using BoilerController.Api.Extensions;
 using BoilerController.Api.Models;
-using BoilerController.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoilerController.Api.Controllers
@@ -12,11 +11,15 @@ namespace BoilerController.Api.Controllers
     {
         private readonly ILoggerManager _logger;
         private readonly IRepositoryWrapper _repoWrapper;
+        private readonly IDeviceService _devService;
 
-        public DeviceController(ILoggerManager logger, IRepositoryWrapper repoWrapper)
+        public DeviceController(ILoggerManager logger, 
+                                IRepositoryWrapper repoWrapper,
+                                IDeviceService devService)
         {
             _logger = logger;
             _repoWrapper = repoWrapper;
+            _devService = devService;
         }
 
         [HttpGet]
@@ -74,7 +77,7 @@ namespace BoilerController.Api.Controllers
                     return BadRequest($"Device object is invalid.");
                 }
 
-                _repoWrapper.Devices.CreateDevice(device);
+                _devService.RegisterDevice(device);
                 return CreatedAtRoute("DeviceById", new { id = device.Id }, device);
             }
             catch (Exception e)
@@ -109,7 +112,7 @@ namespace BoilerController.Api.Controllers
                     return NotFound("Device with such ID couldn't be found.");
                 }
 
-                _repoWrapper.Devices.UpdateDevice(dbDevice, device);
+                _devService.UpdateDevice(id, dbDevice, device);
                 return NoContent();
             }
             catch (Exception e)
@@ -131,7 +134,7 @@ namespace BoilerController.Api.Controllers
                     return NotFound("Device with such ID couldn't be found.");
                 }
 
-                _repoWrapper.Devices.DeleteDevice(device);
+                _devService.DeregisterDevice(device);
                 return NoContent();
             }
             catch (Exception e)

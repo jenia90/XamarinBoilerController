@@ -11,13 +11,17 @@ namespace BoilerController.Api.Controllers
     {
         private readonly ILoggerManager _logger;
         private readonly IRepositoryWrapper _repoWrapper;
+        private readonly IDeviceService _devService;
 
-        public StateController(ILoggerManager logger, IRepositoryWrapper repoWrapper)
+        public StateController(ILoggerManager logger, 
+                               IRepositoryWrapper repoWrapper,
+                               IDeviceService devSerice)
         {
             _logger = logger;
             _repoWrapper = repoWrapper;
+            _devService = devSerice;
         }
-
+        //TODO: Clean this place up and maybe move the error checking and logging errors to DeviceService.
         [HttpGet("id/{id}")]
         public IActionResult GetStateById(Guid id)
         {
@@ -31,7 +35,7 @@ namespace BoilerController.Api.Controllers
                 }
 
                 _logger.LogInfo($"Current state for device: {id}, returned.");
-                return Ok(device.State);
+                return Ok(_devService.GetState(device));
             }
             catch (Exception e)
             {
@@ -57,7 +61,7 @@ namespace BoilerController.Api.Controllers
                     return BadRequest($"State object is invalid.");
                 }
 
-                var device = _repoWrapper.Devices.GetDeviceById(state.DeviceId) as Device;
+                var device = _repoWrapper.Devices.GetDeviceById(state.DeviceId);
 
                 if (device.IsEmptyObject())
                 {
@@ -65,7 +69,7 @@ namespace BoilerController.Api.Controllers
                     return NotFound("Device with such ID couldn't be found.");
                 }
 
-                device.State = state.DeviceState;
+                _devService.SetState(device, state.DeviceState);
                 return NoContent();
 
             }

@@ -28,7 +28,6 @@ namespace BoilerController.Api.Repository
 
         public void CreateDevice(Device device)
         {
-            device.Id = Guid.NewGuid();
             Create(device);
             Save();
         }

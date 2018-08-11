@@ -31,6 +31,7 @@ namespace BoilerController.Api
             services.ConfigureLoggerService();
             services.ConfigureMySqlContext(Configuration);
             services.ConfigureRepositoryWrapper();
+            services.ConfigureDeviceService();
             services.ConfigureScheduler();
             services.AddSwaggerGen(c =>
             {

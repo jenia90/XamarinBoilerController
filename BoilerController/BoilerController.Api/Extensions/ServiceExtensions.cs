@@ -68,7 +68,7 @@ namespace BoilerController.Api.Extensions
 
         public static void ConfigureDeviceService(this IServiceCollection services)
         {
-            services.AddSingleton<IDeviceService, DeviceService>();
+            services.AddScoped<IDeviceService, DeviceService>();
         }
     }
 }

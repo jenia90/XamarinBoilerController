@@ -8,9 +8,9 @@ namespace BoilerController.Api.Models
 {
     public enum DeviceType
     {
-        Input,
-        Output,
-        PWM
+        Input = 0,
+        Output = 1,
+        PWM = 2
     }
     public class Device : IEntity
     {
@@ -19,7 +19,7 @@ namespace BoilerController.Api.Models
         public Guid Id { get; set; }
         [Required(ErrorMessage = "You must specify device type")]
         [Column("DeviceType")]
-        public DeviceType Type { get; }
+        public DeviceType Type { get; set; }
         [Required(ErrorMessage = "You must specify device name")]
         [Column("DeviceName")]
         public string DeviceName { get; set; }
